@@ -1,2 +1,2 @@
 # nbac
-nba client for download stats
+client for downloading NBA stats
