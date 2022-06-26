@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/spf13/cobra v1.5.0
-	github.com/stephenhu/stats v0.0.0-20220624024202-29e0833dcac8
+	github.com/stephenhu/stats v0.0.0-20220624140109-a67d99989010
 )
 
 require (

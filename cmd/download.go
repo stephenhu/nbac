@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	//"fmt"
+	"encoding/json"
+	"fmt"
 	//"io"
 	"log"
 	//"net/http"
 	//"net/url"
-	//"os"
+	"os"
 	//"sort"
-	//"strings"
+	"strings"
 
 	//"github.com/PuerkitoBio/goquery"
 	"github.com/spf13/cobra"
@@ -20,7 +21,6 @@ var (
 	
 	fPattern				string
 	fFile						string
-	fExclude        []string
 
 	 downloadCmd = &cobra.Command{
 		Use: "download",
@@ -38,26 +38,61 @@ var (
 
 func download() {
 
-	start := stats.YEAR_MODERN_ERA
-
 	years := stats.GetYearsFrom(stats.YEAR_MODERN_ERA)
 
-	log.Println(years)
+	for _, y := range years {
 
-	/*
-	days := stats.GetDaysByYear("2019")
+		days := stats.GetDaysBySeason(y)
 
-	for _, d := range days {
+		dirName := fmt.Sprintf("%d", y)
 
-		log.Println(d)
+		err := os.Mkdir(dirName, 0755)
 
-		s := stats.NbaGetScoreboard(d)
+		if err != nil {
+			log.Println(err)
+		} else {
 
-		g := stats.NbaGetBoxscores(s)
+			for _, d := range days {
 
-		log.Println(g)
+				s := stats.NbaGetScoreboard(d)
+
+				b := stats.NbaGetBoxscores(s)
+
+				err := os.Mkdir(fmt.Sprintf("%s/%s", dirName, d), 0755)
+
+				if err != nil {
+					log.Println(err)
+				} else {
+
+					for _, game := range b {
+
+						j, err := json.MarshalIndent(game, stats.STRING_EMPTY,
+							stats.STRING_TAB)
+		
+						if err != nil {
+							log.Println(err)
+						} else {
+
+							fileName := fmt.Sprintf("%d/%s/%s%s.json", y, d,
+								strings.ToLower(game.AwayScore.ShortName),
+								strings.ToLower(game.HomeScore.ShortName))
+
+							err := os.WriteFile(fileName, j, 0660)
+
+							if err != nil {
+								log.Println(err)
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+	
+		}
 
 	}
-	*/
 
 } // download
