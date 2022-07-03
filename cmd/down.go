@@ -10,8 +10,7 @@ import (
 	"os"
 	//"sort"
 	"strings"
-
-	//"github.com/PuerkitoBio/goquery"
+	
 	"github.com/spf13/cobra"
 	"github.com/stephenhu/stats"
 )
@@ -19,13 +18,10 @@ import (
 
 var (
 	
-	fPattern				string
-	fFile						string
-
-	 downloadCmd = &cobra.Command{
-		Use: "download",
-		Short: "Download statistics",
-		Long: "Download statistics from the NBA's APIs",
+	downCmd = &cobra.Command{
+		Use: "down",
+		Short: "download statistics",
+		Long: "download statistics from the NBA's APIs",
 		Run: func(cmd *cobra.Command, args []string) {
 
 			download()
@@ -34,6 +30,10 @@ var (
 	}
 
 )
+
+
+func init() {
+} // init
 
 
 func download() {

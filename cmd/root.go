@@ -6,6 +6,18 @@ import (
 )
 
 
+const (
+	DEFAULT_REDIS_HOST					= "127.0.0.1"
+	DEFAULT_REDIS_PORT          = "6379"
+	DEFAULT_REDIS_PROTOCOL      = "tcp"
+)
+
+
+const (
+	TARGET_REDIS            = "redis"
+)
+
+
 var (
 
 	fLocation			string
@@ -13,7 +25,7 @@ var (
 	rootCmd = &cobra.Command{
 		Use: "nbac",
 		Short: "nbac command line tool",
-		Long: "nbac is a command line tool for crawling NBA statistics",
+		Long: "nbac is a command line tool for downloading and transforming NBA statistics",
 		Version: "0.1",
 	}
 
@@ -24,7 +36,8 @@ func init() {
 
 	cobra.OnInitialize()
 
-	rootCmd.AddCommand(downloadCmd)
+	rootCmd.AddCommand(downCmd)
+	rootCmd.AddCommand(loadCmd)
 
 
 } // init
