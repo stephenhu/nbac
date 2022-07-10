@@ -17,10 +17,10 @@ var (
 	fHost           string
 	fPort           string
 	
-	 loadCmd = &cobra.Command{
-		Use: "load",
-		Short: "load statistics",
-		Long: "load statistics to data store",
+	 pushCmd = &cobra.Command{
+		Use: "push",
+		Short: "push statistics",
+		Long: "push statistics to data store",
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 
@@ -32,11 +32,11 @@ var (
 
 func init() {
 
-	loadCmd.Flags().StringVarP(&fHost, "host", "", DEFAULT_REDIS_HOST,
+	pushCmd.Flags().StringVarP(&fHost, "host", "", DEFAULT_REDIS_HOST,
     "Data store host address")
-	loadCmd.Flags().StringVarP(&fPort, "port", "p", DEFAULT_REDIS_PORT,
+	pushCmd.Flags().StringVarP(&fPort, "port", "p", DEFAULT_REDIS_PORT,
     "Data store address port")
 
-	loadCmd.AddCommand(redisCmd)
+	pushCmd.AddCommand(redisCmd)
 
 } // init

@@ -9,6 +9,18 @@ import (
 )
 
 
+const (
+	DEFAULT_REDIS_HOST					= "127.0.0.1"
+	DEFAULT_REDIS_PORT          = "6379"
+	DEFAULT_REDIS_PROTOCOL      = "tcp"
+)
+
+
+const (
+	TARGET_REDIS            = "redis"
+)
+
+
 var RP *redis.Pool
 
 
