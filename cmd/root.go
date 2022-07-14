@@ -6,6 +6,16 @@ import (
 )
 
 
+const (
+  DEFAULT_PATH					= "."
+)
+
+
+const (
+	EXT_JSON							= ".json"
+)
+
+
 var (
 
 	fLocation			string

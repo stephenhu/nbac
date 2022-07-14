@@ -117,7 +117,7 @@ func pullTeams(y int) {
 
 func pullAll() {
 
-	years := stats.GetYearsFrom(fFrom)
+	years := stats.GetYearsFrom(fSeason)
 
 	for _, y := range years {
 

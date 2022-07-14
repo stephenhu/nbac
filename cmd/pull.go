@@ -8,7 +8,7 @@ import (
 
 var (
 	
-	fFrom					int
+	fSeason       int
 
 	pullCmd = &cobra.Command{
 		Use: "pull",
@@ -22,7 +22,7 @@ var (
 
 func init() {
 
-	pullCmd.PersistentFlags().IntVarP(&fFrom, "from", "f", 
+	pullCmd.PersistentFlags().IntVarP(&fSeason, "season", "s", 
 	  stats.YEAR_MODERN_ERA, "Year to start download.  Default season is 1979")
 
 	pullCmd.AddCommand(pullNbaCmd)

@@ -14,10 +14,9 @@ import (
 
 var (
 	
-	fHost           string
-	fPort           string
+	fFrom						string
 	
-	 pushCmd = &cobra.Command{
+	pushCmd = &cobra.Command{
 		Use: "push",
 		Short: "push statistics",
 		Long: "push statistics to data store",
@@ -32,10 +31,8 @@ var (
 
 func init() {
 
-	pushCmd.Flags().StringVarP(&fHost, "host", "", DEFAULT_REDIS_HOST,
-    "Data store host address")
-	pushCmd.Flags().StringVarP(&fPort, "port", "p", DEFAULT_REDIS_PORT,
-    "Data store address port")
+	pushCmd.PersistentFlags().StringVarP(&fFrom, "from", "f", 
+	  DEFAULT_PATH, "Path to read from")
 
 	pushCmd.AddCommand(redisCmd)
 
