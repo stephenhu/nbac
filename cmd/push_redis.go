@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	//"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/cobra"
+	"github.com/stephenhu/stats"
 )
 
 
@@ -24,6 +24,10 @@ const (
 	TARGET_REDIS            = "redis"
 )
 
+
+const (
+	HSET										= "HSET"
+)
 
 var RP *redis.Pool
 
@@ -67,7 +71,7 @@ func connect(addr string) {
 } // connect
 
 
-func readSeasons() {
+func storeSeasons() {
 
 	dirs, err := os.ReadDir(fFrom)
 
@@ -79,47 +83,76 @@ func readSeasons() {
 
 			if d.IsDir() {
 
-				sdirs, err := os.ReadDir(filepath.Join(fFrom, d.Name()))
+				if stats.IsValidSeason(d.Name()) {
 
-				if err != nil {
-					log.Println(err)
-				} else {
+					log.Println(d.Name())
+					sdirs, err := os.ReadDir(filepath.Join(fFrom, d.Name()))
 
-					for _, sd := range sdirs {
+					if err != nil {
+						log.Println(err)
+					} else {
+	
+						for _, sd := range sdirs {
+	
+							if sd.IsDir() {
 
-						games, err := os.ReadDir(filepath.Join(fFrom, d.Name(), sd.Name()))
+								games, err := os.ReadDir(filepath.Join(fFrom, d.Name(), sd.Name()))
+	
+								if err != nil {
+									log.Println(err)
+								} else {
+		
+									for _, g := range games {
+		
+										if filepath.Ext(g.Name()) == EXT_JSON {
 
-						if err != nil {
-							log.Println(err)
-						} else {
+											rp := RP.Get()
+											
+											b, err := os.ReadFile(filepath.Join(fFrom, d.Name(), sd.Name(), g.Name()))
 
-							for _, g := range games {
+											if err != nil {
+												log.Println(err)
+											} else {
 
-								if filepath.Ext(g.Name()) == EXT_JSON {
-									log.Println(g.Name())
+												_, err := rp.Do(HSET, sd.Name(), g.Name(), b)
+
+												if err != nil {
+													log.Println(err)
+												} else {
+	
+												}
+
+											}
+
+											rp.Close()
+
+										}
+			
+									}
+			
 								}
 	
 							}
 	
 						}
-
+	
 					}
-
+	
 				}
+
 			}
 
 		}
 
 	}
 
-
-} // readSeasons
+} // storeSeasons
 
 
 func loadData() {
 
 	connect(fmt.Sprintf("%s:%s", fHost, fPort))
 
-	readSeasons()
+	storeSeasons()
 
 } // loadData

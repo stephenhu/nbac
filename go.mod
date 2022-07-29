@@ -3,9 +3,9 @@ module github.com/stephenhu/nbac
 go 1.17
 
 require (
-	github.com/gomodule/redigo v1.8.8
+	github.com/gomodule/redigo v1.8.9
 	github.com/spf13/cobra v1.5.0
-	github.com/stephenhu/stats v0.0.0-20220703140835-31b25c6f900c
+	github.com/stephenhu/stats v0.0.0-20220717101624-bda74bc18e16
 )
 
 require (

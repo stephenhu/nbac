@@ -5,15 +5,13 @@
 * download a game
 * download storage format (e.g. csv, json)
 
-## down
+## pull
 
-* `nbac down` # all games, players, teams
-* `nbac down list`
-* `nbac down bdl` # balldontlie.io (1979 - now)
-* `nbac down nba` # data.nba.net (only supports 2014 - now)
-* `nbac down --season [YYYY]` # entire season stats
-* `nbac down game` # single game stats
+* `nbac pull bdl` # balldontlie.io (1979 - now)
+* `nbac pull nba` # data.nba.net (only supports 2014 - now)
+* `nbac pull --season [YYYY]` # entire season stats
+* `nbac pull game` # single game stats
 
-## 
+## push
 
-* `nbac transform --target redis` # redis, postgresql, sqlite3, csv
+* `nbac push redis` # redis, postgresql, sqlite3, csv
