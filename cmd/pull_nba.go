@@ -1,11 +1,7 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/stephenhu/stats"
@@ -28,120 +24,55 @@ var (
 
 func init() {
 
+
+
 } // init
 
 
-func pullGames(d string, y int) {
+func getSchedule() *stats.NbaSchedule {
 
-	s := stats.NbaGetScoreboard(d)
+	schedule := stats.NbaGetSchedule()
 
-	b := stats.NbaGetBoxscores(s)
+	fn := fmt.Sprintf("%s/schedule.json", fDir)
 
-	err := os.Mkdir(fmt.Sprintf("%d/%s", y, d), 0755)
+	writeJson(schedule, fn)
 
-	if err != nil {
-		log.Println(err)
-	} else {
+	return schedule
 
-		for _, game := range b {
-
-			j, err := json.MarshalIndent(game, stats.STRING_EMPTY,
-				stats.STRING_TAB)
-
-			if err != nil {
-				log.Println(err)
-			} else {
-
-				fileName := fmt.Sprintf("%d/%s/%s%s.json", y, d,
-					strings.ToLower(game.AwayScore.ShortName),
-					strings.ToLower(game.HomeScore.ShortName))
-
-				err := os.WriteFile(fileName, j, 0660)
-
-				if err != nil {
-					log.Println(err)
-				}
-
-			}
-
-		}
-
-	}
-
-} // pullGames
-
-
-func pullPlayers(y int) {
-
-	players := stats.NbaGetPlayers(y)
-
-	j, err := json.MarshalIndent(players, stats.STRING_EMPTY,
-		stats.STRING_TAB)
-
-	if err != nil {
-		log.Println(err)
-	} else {
-
-		err := os.WriteFile(fmt.Sprintf("%d/players.json", y), j, 0660)
-
-		if err != nil {
-			log.Println(err)
-		}
-	
-	}
-
-} // pullPlayers
-
-
-func pullTeams(y int) {
-
-	teams := stats.NbaGetTeams(y)
-
-	j, err := json.MarshalIndent(teams, stats.STRING_EMPTY,
-		stats.STRING_TAB)
-
-	if err != nil {
-		log.Println(err)
-	} else {
-
-		err := os.WriteFile(fmt.Sprintf("%d/teams.json", y), j, 0660)
-
-		if err != nil {
-			log.Println(err)
-		}
-	
-	}
-
-} // pullTeams
+} // getSchedule
 
 
 func pullAll() {
 
-	years := stats.GetYearsFrom(fSeason)
+	schedule := getSchedule()
 
-	for _, y := range years {
-
-		days := stats.GetDaysBySeason(y)
-
-		dirName := fmt.Sprintf("%d", y)
-
-		err := os.Mkdir(dirName, 0755)
-
-		if err != nil {
-			log.Println(err)
-		} else {
-
-			pullPlayers(y)
-			pullTeams(y)
-
-			for _, d := range days {
+	for _, day := range schedule.LeagueSchedule.GameDates {
+		for _, game := range day.Games {
+			if game.WeekNumber > 0 {
 				
-				pullGames(d, y)
+				box := stats.NbaGetBoxscore(game.ID)
 
+				if box != nil {
+
+					name := stats.UtcToFolder(box.Game.GameTime)
+
+					// TODO: is this windows friendly?
+					dir := fmt.Sprintf("%s/%s", fDir, name)
+
+					if !dirExists(dir) {
+						createDir(dir)
+					}
+
+					fn := fmt.Sprintf("%s/%s.json", dir, game.ID)
+
+					writeJson(box, fn)
+	
+				}
+				
 			}
 
 		}
-	
+
 	}
 
 } // pullAll

@@ -9,7 +9,6 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/cobra"
-	"github.com/stephenhu/stats"
 )
 
 
@@ -83,61 +82,56 @@ func storeSeasons() {
 
 			if d.IsDir() {
 
-				if stats.IsValidSeason(d.Name()) {
+				sdirs, err := os.ReadDir(filepath.Join(fFrom, d.Name()))
 
-					log.Println(d.Name())
-					sdirs, err := os.ReadDir(filepath.Join(fFrom, d.Name()))
+				if err != nil {
+					log.Println(err)
+				} else {
 
-					if err != nil {
-						log.Println(err)
-					} else {
+					for _, sd := range sdirs {
+
+						if sd.IsDir() {
+
+							games, err := os.ReadDir(filepath.Join(fFrom, d.Name(), sd.Name()))
+
+							if err != nil {
+								log.Println(err)
+							} else {
 	
-						for _, sd := range sdirs {
+								for _, g := range games {
 	
-							if sd.IsDir() {
+									if filepath.Ext(g.Name()) == EXT_JSON {
 
-								games, err := os.ReadDir(filepath.Join(fFrom, d.Name(), sd.Name()))
-	
-								if err != nil {
-									log.Println(err)
-								} else {
-		
-									for _, g := range games {
-		
-										if filepath.Ext(g.Name()) == EXT_JSON {
+										rp := RP.Get()
+										
+										b, err := os.ReadFile(filepath.Join(fFrom, d.Name(), sd.Name(), g.Name()))
 
-											rp := RP.Get()
-											
-											b, err := os.ReadFile(filepath.Join(fFrom, d.Name(), sd.Name(), g.Name()))
+										if err != nil {
+											log.Println(err)
+										} else {
+
+											_, err := rp.Do(HSET, sd.Name(), g.Name(), b)
 
 											if err != nil {
 												log.Println(err)
 											} else {
 
-												_, err := rp.Do(HSET, sd.Name(), g.Name(), b)
-
-												if err != nil {
-													log.Println(err)
-												} else {
-	
-												}
-
 											}
 
-											rp.Close()
-
 										}
-			
+
+										rp.Close()
+
 									}
-			
+		
 								}
-	
+		
 							}
-	
+
 						}
-	
+
 					}
-	
+
 				}
 
 			}
