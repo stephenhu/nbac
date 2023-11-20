@@ -47,28 +47,33 @@ func pullAll() {
 	schedule := getSchedule()
 
 	for _, day := range schedule.LeagueSchedule.GameDates {
-		for _, game := range day.Games {
-			if game.WeekNumber > 0 {
-				
-				box := stats.NbaGetBoxscore(game.ID)
 
-				if box != nil {
+		if !stats.IsFutureGame(day.GameDate) {
 
-					name := stats.UtcToFolder(box.Game.GameTime)
+			for _, game := range day.Games {
+				if game.WeekNumber > 0 {
+					
+					box := stats.NbaGetBoxscore(game.ID)
 
-					// TODO: is this windows friendly?
-					dir := fmt.Sprintf("%s/%s", fDir, name)
+					if len(box.Meta.Time) != 0 && len(box.Meta.Request) != 0 {
 
-					if !dirExists(dir) {
-						createDir(dir)
+						name := stats.UtcToFolder(box.Game.GameTime)
+
+						// TODO: is this windows friendly?
+						dir := fmt.Sprintf("%s/%s", fDir, name)
+
+						if !dirExists(dir) {
+							createDir(dir)
+						}
+
+						fn := fmt.Sprintf("%s/%s.json", dir, game.ID)
+
+						writeJson(box, fn)
+		
 					}
-
-					fn := fmt.Sprintf("%s/%s.json", dir, game.ID)
-
-					writeJson(box, fn)
-	
+					
 				}
-				
+
 			}
 
 		}

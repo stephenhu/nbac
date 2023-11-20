@@ -92,7 +92,6 @@ func writeJson(data interface{}, path string) {
 		err := os.WriteFile(path, j, 0660)
 
 		if err != nil {
-			log.Println("big nut")
 			log.Println(err)
 		}
 
