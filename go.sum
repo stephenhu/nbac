@@ -19,6 +19,14 @@ github.com/stephenhu/stats v0.2.0 h1:dMqKL6SP9lw12X+BY5GDOs5NBST5EE8HI9rnpmPt6OQ
 github.com/stephenhu/stats v0.2.0/go.mod h1:cqm71u0HFE9HjyjmFTWAklHs8Ema2Gb+/g1FUJnfJRQ=
 github.com/stephenhu/stats v0.2.1 h1:mplXepv0qipYR3G9TDxtISSvZXL1CdLiLrGIm8+9U8o=
 github.com/stephenhu/stats v0.2.1/go.mod h1:cqm71u0HFE9HjyjmFTWAklHs8Ema2Gb+/g1FUJnfJRQ=
+github.com/stephenhu/stats v0.2.2 h1:0k2nLsQh5cKw+SiZMIh4a2XcgMJV7EfJodqtrJiDr68=
+github.com/stephenhu/stats v0.2.2/go.mod h1:cqm71u0HFE9HjyjmFTWAklHs8Ema2Gb+/g1FUJnfJRQ=
+github.com/stephenhu/stats v0.2.3 h1:Jx1H10Qazm4iK6oniVeR+0ZOcv6N/OiNyP7INhCVf2E=
+github.com/stephenhu/stats v0.2.3/go.mod h1:cqm71u0HFE9HjyjmFTWAklHs8Ema2Gb+/g1FUJnfJRQ=
+github.com/stephenhu/stats v0.2.4 h1:g1x5sYxNdFdVsBe7EChJ12lJoHkE/2Df+vUyGoZ81vc=
+github.com/stephenhu/stats v0.2.4/go.mod h1:cqm71u0HFE9HjyjmFTWAklHs8Ema2Gb+/g1FUJnfJRQ=
+github.com/stephenhu/stats v0.2.5 h1:QJeD+hUSz9S+4Zx4IBbl0ewhQtGeAia+qslvvwxCcf8=
+github.com/stephenhu/stats v0.2.5/go.mod h1:cqm71u0HFE9HjyjmFTWAklHs8Ema2Gb+/g1FUJnfJRQ=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=

@@ -16,8 +16,6 @@ import (
 
 var (
 	
-	fFrom						string
-	
 	pushCmd = &cobra.Command{
 		Use: "push",
 		Short: "push statistics",

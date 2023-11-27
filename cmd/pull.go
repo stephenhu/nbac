@@ -11,9 +11,6 @@ import (
 
 
 var (
-	
-	fYear       	int
-	fDir          string				= DEFAULT_PATH
 
 	pullCmd = &cobra.Command{
 		Use: "pull",
@@ -27,8 +24,8 @@ var (
 
 func init() {
 
-	pullCmd.PersistentFlags().IntVarP(&fYear, "year", "y", 
-	  stats.YEAR_MODERN_ERA, "Year to start download.  Default season is current")
+	pullCmd.PersistentFlags().StringVarP(&fYear, "year", "y", 
+	  stats.GetCurrentSeason(), "Year to start download.  Default season is current")
 	
 	pullCmd.PersistentFlags().StringVarP(&fDir, "dir", "d", 
 	  stats.GetCurrentSeason(), "Directory where data is stored")
@@ -41,7 +38,7 @@ func init() {
 } // init
 
 
-func dirExists(d string) bool {
+func fileExists(d string) bool {
 
 	_, err := os.Stat(d)
 
@@ -57,7 +54,7 @@ func dirExists(d string) bool {
 		return true
 	}
 
-} // dirExists
+} // fileExists
 
 
 func createDir(d string) {
@@ -73,7 +70,7 @@ func createDir(d string) {
 
 func initDir() {
 
-	if !dirExists(fDir) {
+	if !fileExists(fDir) {
 		createDir(fDir)
 	}
 
@@ -98,3 +95,30 @@ func writeJson(data interface{}, path string) {
 	}
 
 } // writeJson
+
+
+func readJson(data interface{}, path string) {
+
+	if len(path) == 0 {
+		return
+	}
+
+	if fileExists(path) {
+
+		buf, err := os.ReadFile(path)
+
+		if err != nil {
+			log.Println(err)
+		} else {
+			
+			err := json.Unmarshal(buf, &data)
+
+			if err != nil {
+				log.Println(err)
+			}
+
+		}
+
+	}
+
+} // readJson

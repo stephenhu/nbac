@@ -7,7 +7,12 @@ import (
 
 
 const (
+	APP_VERSION						= "0.1"
   DEFAULT_PATH					= "."
+)
+
+const (
+	FROM_SEASON_BEGIN			= ""
 )
 
 
@@ -19,6 +24,9 @@ const (
 var (
 
 	fLocation			string
+	fDir					string					= DEFAULT_PATH
+	fFrom					string
+	fYear       	string
 
 	rootCmd = &cobra.Command{
 		Use: "nbac",
@@ -36,6 +44,8 @@ func init() {
 
 	rootCmd.AddCommand(pullCmd)
 	rootCmd.AddCommand(pushCmd)
+	rootCmd.AddCommand(statusCmd)
+	rootCmd.AddCommand(versionCmd)
 
 } // init
 
