@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"log"
+	//"log"
 
 	"github.com/spf13/cobra"
 	"github.com/stephenhu/stats"
@@ -102,14 +102,11 @@ func pullResume() {
 
 	days := getGameDays()
 
-	log.Println(days)
 	if len(days) == 1 || len(days) == 0 {
 		pullFrom(FROM_SEASON_BEGIN)
 	} else {
-		//log.Println(days[len(days)-1])
-		//log.Println(days[len(days)-2])
+
 		// this will fail if there other directories with non date names
-		log.Println(days[len(days)-2].Name())
 		pullFrom(days[len(days)-2].Name())
 
 	}
