@@ -27,6 +27,8 @@ github.com/stephenhu/stats v0.2.4 h1:g1x5sYxNdFdVsBe7EChJ12lJoHkE/2Df+vUyGoZ81vc
 github.com/stephenhu/stats v0.2.4/go.mod h1:cqm71u0HFE9HjyjmFTWAklHs8Ema2Gb+/g1FUJnfJRQ=
 github.com/stephenhu/stats v0.2.5 h1:QJeD+hUSz9S+4Zx4IBbl0ewhQtGeAia+qslvvwxCcf8=
 github.com/stephenhu/stats v0.2.5/go.mod h1:cqm71u0HFE9HjyjmFTWAklHs8Ema2Gb+/g1FUJnfJRQ=
+github.com/stephenhu/stats v0.2.6 h1:O/NlhaldXjHSKz7RbzOMWn7WvsLb/ziFFWrkTWglHJg=
+github.com/stephenhu/stats v0.2.6/go.mod h1:cqm71u0HFE9HjyjmFTWAklHs8Ema2Gb+/g1FUJnfJRQ=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=

@@ -77,10 +77,17 @@ func pullFrom(d string) {
 								createDir(dir)
 							}
 	
-							fn := fmt.Sprintf("%s/%s.json", dir, game.ID)
+							fn 	:= fmt.Sprintf("%s/%s.json", dir, game.ID)
+							fn2 := fmt.Sprintf("%s/%s_playbyplay.json", dir, game.ID)
 
 							if !fileExists(fn) {
 								writeJson(box, fn)
+							}
+
+							plays := stats.NbaGetPlays(game.ID)
+
+							if !fileExists(fn2) {
+								writeJson(plays, fn2)
 							}
 			
 						}
