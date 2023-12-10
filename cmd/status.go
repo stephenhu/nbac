@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	//"path/filepath"
 	//"sort"
-	//"strings"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -53,9 +54,10 @@ func getTotalGames() int {
 } // getTotalGames
 
 
-func getDownloaded() int {
+func getDownloaded() (int, int) {
 
-	total := 0
+	total 		:= 0
+	ptotal 		:= 0
 
 	dirs, err := os.ReadDir(fDir)
 
@@ -67,13 +69,28 @@ func getDownloaded() int {
 
 			if day.IsDir() {
 
-				games, err := os.ReadDir(fmt.Sprintf("%s/%s", fDir, day.Name()))
+				fn := fmt.Sprintf("%s/%s", fDir, day.Name())
+				
+				games, err := os.ReadDir(fn)
 
 				if err != nil {
 					log.Println(err)
 				} else {
-					// TODO: verify .json only
-					total += len(games)
+
+					for _, g := range games {
+
+						if path.Ext(path.Join(fn, g.Name())) == EXT_JSON {
+
+							if strings.Contains(g.Name(), PBP_SUFFIX) {
+								ptotal += 1
+							} else {
+								total += 1
+							}
+	
+						}
+
+					}
+
 				}
 	
 			}
@@ -82,7 +99,7 @@ func getDownloaded() int {
 
 	}
 
-	return total
+	return total, ptotal
 
 } // getDownloaded
 
@@ -114,7 +131,7 @@ func getGameCountByDay(d string) int {
 		} else {
 
 			if t.Format(stats.DATE_FORMAT) == d {
-				return len(day.Games)
+				return len(day.Games) * 2
 			}
 	
 		}
@@ -156,15 +173,35 @@ func getGameDayDetail() {
 } // getGameDayDetail
 
 
+func getEstTimeNow() time.Time {
+
+	now := time.Now()
+
+	locale, err := time.LoadLocation(LOCALE_EST)
+
+	if err != nil {
+		log.Println(err)
+	} else {
+		return now.In(locale)
+	}
+
+	return now
+
+} // getEstTimeNow
+
+
 func getStatus() {
 
-	today := time.Now()
+	today := getEstTimeNow()
+
+	dgames, dplays := getDownloaded()
 
 	//fmt.Println(today.Format(time.DateTime))
 	fmt.Printf("\nSeason %s\n", stats.GetCurrentSeason())
 	fmt.Println("-----------")
 	fmt.Printf("Total Games:\t\t %d\n", getTotalGames())
-	fmt.Printf("Downloaded Games:\t %d\n", getDownloaded())
+	fmt.Printf("Downloaded Games:\t %d\n", dgames)
+	fmt.Printf("Downloaded Plays:\t %d\n", dplays)
 	fmt.Printf("Status Time:\t\t %s\n", today.Format(time.DateTime))
 
 	getGameDayDetail()

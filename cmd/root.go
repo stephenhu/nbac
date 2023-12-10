@@ -9,6 +9,8 @@ import (
 const (
 	APP_VERSION						= "0.1"
   DEFAULT_PATH					= "."
+	PBP_SUFFIX           	= "playbyplay"
+	LOCALE_EST            = "EST"
 )
 
 const (
