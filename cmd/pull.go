@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"os"
@@ -31,7 +32,6 @@ func init() {
 	  stats.GetCurrentSeason(), "Directory where data is stored")
 
 	pullCmd.AddCommand(pullNbaCmd)
-	pullCmd.AddCommand(pullBdlCmd)
 
 	initDir()
 
@@ -77,27 +77,28 @@ func initDir() {
 } // initDir
 
 
-func writeJson(data interface{}, path string) {
+func write(buf []byte, path string) {
 
-	j, err := json.MarshalIndent(data, stats.STRING_EMPTY,
-		stats.STRING_TAB)
+	var out bytes.Buffer
+
+	err := json.Indent(&out, buf, "", "  ")
 
 	if err != nil {
 		log.Println(err)
 	} else {
 
-		err := os.WriteFile(path, j, 0660)
+		err := os.WriteFile(path, out.Bytes(), 0660)
 
 		if err != nil {
 			log.Println(err)
-		}
-
+		}				
+	
 	}
 
-} // writeJson
+} // write
 
 
-func readJson(data interface{}, path string) {
+func read(data interface{}, path string) {
 
 	if len(path) == 0 {
 		return
@@ -121,4 +122,4 @@ func readJson(data interface{}, path string) {
 
 	}
 
-} // readJson
+} // read

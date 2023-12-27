@@ -9,6 +9,17 @@ import (
 )
 
 
+const (
+  NBA_BASE_API								= "https://cdn.nba.com/static/json"
+	NBA_STATIC            			= "/staticData"
+	NBA_LIVE            				= "/liveData"
+	NBA_BOXSCORE          			= "/boxscore/boxscore_%s.json"
+	NBA_PLAYBYPLAY        			= "/playbyplay/playbyplay_%s.json"
+	NBA_TODAYS_SCOREBOARD				= "/scoreboard/todaysScoreboard_00.json"
+	NBA_SCHEDULE                = "/scheduleLeagueV2_9.json"
+)
+
+
 var (
 	
 	pullNbaCmd = &cobra.Command{
@@ -27,21 +38,38 @@ func init() {
 } // init
 
 
+func ScheduleEndpoint() string {
+	
+	return fmt.Sprintf("%s%s%s",
+		NBA_BASE_API,
+		NBA_STATIC,
+		NBA_SCHEDULE,
+	)
+
+} // ScheduleEndpoint
+
+
 func getSchedule() *stats.NbaSchedule {
 
-	var schedule = stats.NbaSchedule{}
+	s := stats.NbaSchedule{}
 
 	fn := fmt.Sprintf("%s/schedule.json", fDir)
- 
+
 	if !fileExists(fn) {
 
-		schedule = *stats.NbaGetSchedule()
+		buf := stats.NbaGetScheduleJson()
 
-		writeJson(schedule, fn)
+		write(buf, fn)
 
 	} else {
-		readJson(&schedule, fn)
+
+		read(&s, fn)
+
 	}
+
+	schedule := stats.NbaSchedule{}
+
+	read(&schedule, fn)
 
 	return &schedule
 
@@ -64,9 +92,9 @@ func pullFrom(d string) {
 					
 					if game.WeekNumber > 0 {
 						
-						box := stats.NbaGetBoxscore(game.ID)
+						box := stats.NbaGetBoxscoreJson(game.ID)
 	
-						if len(box.Meta.Time) != 0 && len(box.Meta.Request) != 0 {
+						//if len(box.Meta.Time) != 0 && len(box.Meta.Request) != 0 {
 	
 							name := stats.GameDateToString(day.GameDate)
 	
@@ -81,16 +109,16 @@ func pullFrom(d string) {
 							fn2 := fmt.Sprintf("%s/%s_playbyplay.json", dir, game.ID)
 
 							if !fileExists(fn) {
-								writeJson(box, fn)
+								write(box, fn)
 							}
 
-							plays := stats.NbaGetPlays(game.ID)
+							plays := stats.NbaGetPlaysJson(game.ID)
 
 							if !fileExists(fn2) {
-								writeJson(plays, fn2)
+								write(plays, fn2)
 							}
 			
-						}
+						//}
 						
 					}
 	

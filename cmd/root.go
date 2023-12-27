@@ -15,6 +15,8 @@ const (
 
 const (
 	FROM_SEASON_BEGIN			= ""
+	STR_EMPTY             = ""
+	STR_INDENT            = "  "
 )
 
 
@@ -33,7 +35,7 @@ var (
 	rootCmd = &cobra.Command{
 		Use: "nbac",
 		Short: "nbac command line tool",
-		Long: "nbac is a command line tool for downloading and transforming NBA statistics",
+		Long: "nbac is a command line tool for downloading NBA statistics",
 		Version: "0.1",
 	}
 
