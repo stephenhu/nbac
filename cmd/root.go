@@ -3,6 +3,7 @@ package cmd
 import (
 
 	"github.com/spf13/cobra"
+	"github.com/stephenhu/stats"
 )
 
 
@@ -46,10 +47,14 @@ func init() {
 
 	cobra.OnInitialize()
 
+	rootCmd.PersistentFlags().StringVarP(&fDir, "dir", "d", 
+		stats.GetCurrentSeason(), "Directory where data is stored")
+
 	rootCmd.AddCommand(pullCmd)
 	rootCmd.AddCommand(pushCmd)
 	rootCmd.AddCommand(statusCmd)
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(generateCmd)
 
 } // init
 

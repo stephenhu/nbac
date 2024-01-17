@@ -1,16 +1,20 @@
 package cmd
 
 import (
-	//"encoding/json"
+	"encoding/json"
 	//"fmt"
-	//"log"
-	//"os"
+	"log"
+	"os"
 	//"path/filepath"
 	//"sort"
 	//"strings"
 
-	//"github.com/PuerkitoBio/goquery"
 	"github.com/spf13/cobra"
+)
+
+
+const (
+	SCHEDULE_FILENAME				= "schedule.json"
 )
 
 
@@ -37,3 +41,22 @@ func init() {
 	pushCmd.AddCommand(redisCmd)
 
 } // init
+
+
+func readJson(p string, data interface{}) {
+
+	buf, err := os.ReadFile(p)
+
+	if err != nil {
+		log.Println(err)
+	} else {
+
+		err := json.Unmarshal(buf, data)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+	}
+
+} // readJson

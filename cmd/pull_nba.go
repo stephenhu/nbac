@@ -9,17 +9,6 @@ import (
 )
 
 
-const (
-  NBA_BASE_API								= "https://cdn.nba.com/static/json"
-	NBA_STATIC            			= "/staticData"
-	NBA_LIVE            				= "/liveData"
-	NBA_BOXSCORE          			= "/boxscore/boxscore_%s.json"
-	NBA_PLAYBYPLAY        			= "/playbyplay/playbyplay_%s.json"
-	NBA_TODAYS_SCOREBOARD				= "/scoreboard/todaysScoreboard_00.json"
-	NBA_SCHEDULE                = "/scheduleLeagueV2_9.json"
-)
-
-
 var (
 	
 	pullNbaCmd = &cobra.Command{
@@ -41,9 +30,9 @@ func init() {
 func ScheduleEndpoint() string {
 	
 	return fmt.Sprintf("%s%s%s",
-		NBA_BASE_API,
-		NBA_STATIC,
-		NBA_SCHEDULE,
+		stats.NBA_BASE_URL,
+		stats.NBA_STATIC,
+		stats.NBA_SCHEDULE,
 	)
 
 } // ScheduleEndpoint
@@ -141,8 +130,9 @@ func pullResume() {
 		pullFrom(FROM_SEASON_BEGIN)
 	} else {
 
-		// this will fail if there other directories with non date names
-		pullFrom(days[len(days)-2].Name())
+		lastDay := getLastDay(days)
+
+		pullFrom(lastDay)
 
 	}
 

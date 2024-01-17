@@ -27,9 +27,6 @@ func init() {
 
 	pullCmd.PersistentFlags().StringVarP(&fYear, "year", "y", 
 	  stats.GetCurrentSeason(), "Year to start download.  Default season is current")
-	
-	pullCmd.PersistentFlags().StringVarP(&fDir, "dir", "d", 
-	  stats.GetCurrentSeason(), "Directory where data is stored")
 
 	pullCmd.AddCommand(pullNbaCmd)
 

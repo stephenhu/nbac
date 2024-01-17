@@ -104,6 +104,39 @@ func getDownloaded() (int, int) {
 } // getDownloaded
 
 
+func getLastDay(days []os.DirEntry) string {
+
+	var lastDay *time.Time
+	
+	for _, d := range days {
+
+		name := d.Name()
+
+		t1, err := time.Parse(NBAC_DATE_FORMAT, name)
+
+		if err != nil {
+			log.Println(err)
+		} else {
+
+			if lastDay == nil {
+				lastDay = &t1
+			} else {
+
+				if t1.After(*lastDay) {
+					lastDay = &t1
+				}
+
+			}
+
+		}
+
+	}
+
+	return lastDay.String()
+
+} // getLastDay
+
+
 func getGameDays() []os.DirEntry {
 
 	days, err := os.ReadDir(fDir)
