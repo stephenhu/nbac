@@ -113,15 +113,31 @@ func addRecordToParquet(s stats.NbaBoxscore, home bool,
 
 		rb.Field(0).(*array.StringBuilder).Append(s.Game.GameTime)
 		rb.Field(1).(*array.Int32Builder).Append(int32(p.ID))
-		rb.Field(2).(*array.Int32Builder).Append(0)
-		rb.Field(3).(*array.StringBuilder).Append("")
+
+		if home {
+		
+			rb.Field(2).(*array.Int32Builder).Append(int32(s.Game.Home.ID))
+		  rb.Field(3).(*array.StringBuilder).Append(s.Game.Home.ShortName)
+
+			rb.Field(9).(*array.Int32Builder).Append(int32(s.Game.Away.ID))
+		  rb.Field(10).(*array.StringBuilder).Append(s.Game.Away.ShortName)
+
+		} else {
+
+			rb.Field(2).(*array.Int32Builder).Append(int32(s.Game.Away.ID))
+		  rb.Field(3).(*array.StringBuilder).Append(s.Game.Away.ShortName)
+		
+			rb.Field(9).(*array.Int32Builder).Append(int32(s.Game.Home.ID))
+		  rb.Field(10).(*array.StringBuilder).Append(s.Game.Home.ShortName)
+		
+		}
+		
 		rb.Field(4).(*array.StringBuilder).Append(p.First)
 		rb.Field(5).(*array.StringBuilder).Append(p.Last)
 		rb.Field(6).(*array.StringBuilder).Append(p.Name)
 		rb.Field(7).(*array.StringBuilder).Append(p.NameShort)
 		rb.Field(8).(*array.StringBuilder).Append(s.Game.ID)
-		rb.Field(9).(*array.Int32Builder).Append(0)
-		rb.Field(10).(*array.StringBuilder).Append("")
+		
 		rb.Field(11).(*array.Int32Builder).Append(int32(p.Statistics.Points))
 		rb.Field(12).(*array.Int32Builder).Append(int32(p.Statistics.Oreb))
 		rb.Field(13).(*array.Int32Builder).Append(int32(p.Statistics.Dreb))
@@ -137,16 +153,16 @@ func addRecordToParquet(s stats.NbaBoxscore, home bool,
 		rb.Field(23).(*array.Int32Builder).Append(int32(p.Statistics.FoulsDrawn))
 		rb.Field(24).(*array.Int32Builder).Append(int32(p.Statistics.Fta))
 		rb.Field(25).(*array.Int32Builder).Append(int32(p.Statistics.Ftm))
-		rb.Field(26).(*array.Float32Builder).Append(float32(0.0))
+		rb.Field(26).(*array.Float32Builder).Append(float32(p.Statistics.Ftp))
 		rb.Field(27).(*array.Int32Builder).Append(int32(p.Statistics.Fg2a))
 		rb.Field(28).(*array.Int32Builder).Append(int32(p.Statistics.Fg2m))
-		rb.Field(29).(*array.Float32Builder).Append(float32(0.0))
+		rb.Field(29).(*array.Float32Builder).Append(float32(p.Statistics.Fg2p))
 		rb.Field(30).(*array.Int32Builder).Append(int32(p.Statistics.Fg3a))
 		rb.Field(31).(*array.Int32Builder).Append(int32(p.Statistics.Fg3m))
-		rb.Field(32).(*array.Float32Builder).Append(float32(0.0))
+		rb.Field(32).(*array.Float32Builder).Append(float32(p.Statistics.Fg3p))
 		rb.Field(33).(*array.Int32Builder).Append(int32(p.Statistics.Fga))
 		rb.Field(34).(*array.Int32Builder).Append(int32(p.Statistics.Fgm))
-		rb.Field(35).(*array.Float32Builder).Append(float32(0.0))
+		rb.Field(35).(*array.Float32Builder).Append(float32(p.Statistics.Fgp))
 		rb.Field(36).(*array.Int32Builder).Append(int32(p.Statistics.PlusMinus))
 		rb.Field(37).(*array.StringBuilder).Append(p.Position)
 		rb.Field(38).(*array.Int32Builder).Append(int32(stats.PtmToMin(p.Statistics.Minutes)))
