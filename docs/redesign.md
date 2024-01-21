@@ -12,11 +12,9 @@ everyday and re-calculated from the beginning or it can be accumulated.
 
 ### directory structure
 
-* 2023
-  * stats
-    * teams.json
-    * players.json
-    * rookies.json
-  * standings
-    * teams.json
-  * 
+.warehouse
+  games.20240122.parquet
+  players.20240122.parquet
+  teams.20240122.parquet
+  standings.20240122.parquet
+  leaders.20240122.parquet

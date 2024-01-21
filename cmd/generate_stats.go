@@ -10,7 +10,7 @@ import (
 
 
 var (
-	playersCache 		map[int]stats.SeasonPlayer
+	playersCache 		map[int]stats.PlayerSeason
 	//teams 			map[int]map[string]stats.NbaTeamData
 )
 
@@ -68,7 +68,7 @@ func addPlayerStats(g stats.NbaGame, home bool) {
 
 
 func initStructures() {
-	playersCache = make(map[int]stats.SeasonPlayer)
+	playersCache = make(map[int]stats.PlayerSeason)
 } // initStructures
 
 

@@ -6,14 +6,12 @@ require (
 	github.com/apache/arrow/go/v15 v15.0.0-20240113220206-e6323646558e
 	github.com/gomodule/redigo v1.8.9
 	github.com/spf13/cobra v1.5.0
-	github.com/stephenhu/stats v0.2.24
+	github.com/stephenhu/stats v0.3.3
 )
 
 require (
 	github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
-	github.com/apache/arrow/go/arrow v0.0.0-20211025125312-be665ef948cb // indirect
-	github.com/apache/arrow/go/parquet v0.0.0-20211112161151-bc219186db40 // indirect
 	github.com/apache/thrift v0.17.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
