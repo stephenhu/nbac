@@ -19,16 +19,20 @@ import (
 
 
 const (
-	NBAC_DATE_FORMAT		= "20060102"
-	PARQUET_EXT					= ".parquet"
-	PLAYERS_PREFIX      = "players"
-	GAMES_PREFIX      	= "games"
+	NBAC_DATE_FORMAT				= "20060102"
+	PARQUET_EXT							= ".parquet"
+	PLAYERS_PREFIX      		= "players"
+	GAMES_PREFIX      			= "games"
+	LEADERS_PREFIX      		= "leaders"
+	STANDINGS_PREFIX    		= "standings"
 )
 
 
 var (
   gt 						map[string]int
 	schedule			*stats.NbaSchedule
+	scores        []stats.NbaBoxscore
+	leaders       map[int]*stats.Base
 )
 
 
@@ -109,7 +113,7 @@ func createPlayerSchema() *arrow.Schema {
 		{Name: "fgtm", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "fgtp", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "plusMinus", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
-		{Name: "positon", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "position", Type: arrow.BinaryTypes.String, Nullable: false},
 		{Name: "minutes", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "fastbreak", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "paint", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
@@ -118,6 +122,120 @@ func createPlayerSchema() *arrow.Schema {
 	}, nil)
 
 } // createPlayerSchema
+
+
+func createLeadersSchema() *arrow.Schema {
+
+	return arrow.NewSchema([]arrow.Field{
+		{Name: "playerId", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "seasonYear", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "first", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "last", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "full", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "abv", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "points", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "oreb", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "dreb", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "treb", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "assists", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "steals", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "turnovers", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "blocks", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "blocked", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fouls", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "foulsOffensive", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "technicals", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fouled", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fta", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "ftm", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "ftp", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg2a", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fg2m", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fg2p", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg3a", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fg3m", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fg3p", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fgta", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fgtm", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fgtp", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "plusMinus", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "minutes", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fastbreak", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "paint", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "secondChance", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "games", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+	}, nil)
+
+} // createLeadersSchema
+
+
+func createStandingsSchema() *arrow.Schema {
+
+	return arrow.NewSchema([]arrow.Field{
+		{Name: "playerId", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "seasonYear", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "first", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "last", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "full", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "abv", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "points", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "oreb", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "dreb", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "treb", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "assists", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "steals", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "turnovers", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "blocks", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "blocked", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fouls", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "foulsOffensive", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "technicals", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fouled", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fta", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "ftm", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "ftp", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg2a", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fg2m", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fg2p", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg3a", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fg3m", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fg3p", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fgta", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fgtm", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fgtp", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "plusMinus", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "positon", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "minutes", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "fastbreak", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "paint", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "secondChance", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "gameType", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "games", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+	}, nil)
+
+} // createStandingsSchema
+
+
+func playedGame(mins int) int {
+
+	if mins > 0 {
+		return 1
+	} else {
+		return 0
+	}
+
+} // playedGame
+
+
+func percentage(attempted int, made int) float32 {
+
+	if attempted == 0 {
+		return 0.0
+	} else {
+		return float32(made)/float32(attempted)
+	}
+
+} // percentage
 
 
 func boxscoreToParquet(s stats.NbaBoxscore, home bool,
@@ -185,6 +303,143 @@ func boxscoreToParquet(s stats.NbaBoxscore, home bool,
 	}
 
 } // boxscoreToParquet
+
+
+func boxscoreAggregator(players []stats.NbaPlayer) {
+
+	for _, p := range players {
+
+		player, ok := leaders[p.ID]
+
+		mins := stats.PtmToMin(p.Statistics.Minutes)
+
+		pg := playedGame(mins)
+
+		if ok {
+
+			player.Points     += p.Statistics.Points
+			player.Oreb       += p.Statistics.Oreb
+			player.Dreb       += p.Statistics.Dreb
+			player.Treb       += p.Statistics.Treb 
+			player.Assists    += p.Statistics.Assists
+			player.Steals     += p.Statistics.Steals
+			player.Turnovers  += p.Statistics.Turnovers
+			player.Blocks     += p.Statistics.Blocks
+			player.Blocked    += p.Statistics.Blocked
+			player.Fouls      += p.Statistics.Fouls
+			player.FoulsO   	+= p.Statistics.FoulsOff
+			player.Technicals += p.Statistics.Technicals
+			player.Fouled += p.Statistics.FoulsDrawn
+			player.Fta        += p.Statistics.Fta
+			player.Ftm        += p.Statistics.Ftm
+			player.Fgta       += p.Statistics.Fga
+			player.Fgtm       += p.Statistics.Fgm
+			player.Fg2a       += p.Statistics.Fg2a
+			player.Fg2m       += p.Statistics.Fg2m
+			player.Fg3a       += p.Statistics.Fg3a
+			player.Fg3m       += p.Statistics.Fg3m
+			player.PlusMinus  += p.Statistics.PlusMinus
+			player.Minutes    += mins
+			player.Fastbreak += p.Statistics.PointsFast
+			player.Paint 		+= p.Statistics.PointsPaint
+			player.SecondChance		+= p.Statistics.PointsSecond
+			player.Games 					+= pg
+			
+		} else {
+
+			np := stats.Base{
+				ID:									p.ID,
+				First:							p.First,
+				Last:								p.Last,
+				Full:       				p.Name,
+				Abv:  							p.NameShort,
+				Points: 						p.Statistics.Points,
+				Oreb: 							p.Statistics.Oreb,
+				Dreb: 							p.Statistics.Dreb,
+				Treb: 							p.Statistics.Treb,
+				Assists: 						p.Statistics.Assists,
+				Steals: 						p.Statistics.Steals,
+				Turnovers: 					p.Statistics.Turnovers,
+				Blocks: 						p.Statistics.Blocks,
+				Blocked: 						p.Statistics.Blocked,
+				Fouls: 							p.Statistics.Fouls,
+				FoulsO: 						p.Statistics.FoulsOff,
+				Technicals: 				p.Statistics.Technicals,
+				Fouled: 						p.Statistics.FoulsDrawn,
+				Fta: 								p.Statistics.Fta,
+				Ftm: 								p.Statistics.Ftm,
+				Fgta: 							p.Statistics.Fga,
+				Fgtm: 							p.Statistics.Fgm,
+				Fg2a: 							p.Statistics.Fg2a,
+				Fg2m: 							p.Statistics.Fg2m,
+				Fg3a: 							p.Statistics.Fg3a,
+				Fg3m: 							p.Statistics.Fg3m,
+				PlusMinus: 					p.Statistics.PlusMinus,
+				Minutes: 						mins,
+				Fastbreak: 					p.Statistics.PointsFast,
+				Paint: 							p.Statistics.PointsPaint,
+				SecondChance:				p.Statistics.PointsSecond,
+				Games:              pg,
+			}
+
+			leaders[p.ID] = &np
+
+		}
+
+	}
+
+} // boxscoreAggregator
+
+
+func leaderParquet(rb *array.RecordBuilder) {
+
+	for _, p := range leaders {
+
+		rb.Field(0).(*array.Int32Builder).Append(int32(p.ID))
+		rb.Field(1).(*array.StringBuilder).Append("")
+		rb.Field(2).(*array.StringBuilder).Append(p.First)
+		rb.Field(3).(*array.StringBuilder).Append(p.Last)
+    rb.Field(4).(*array.StringBuilder).Append(p.Full)
+	  rb.Field(5).(*array.StringBuilder).Append(p.Abv)
+		rb.Field(6).(*array.Int32Builder).Append(int32(p.Points))
+		rb.Field(7).(*array.Int32Builder).Append(int32(p.Oreb))
+		rb.Field(8).(*array.Int32Builder).Append(int32(p.Dreb))
+		rb.Field(9).(*array.Int32Builder).Append(int32(p.Treb))
+		rb.Field(10).(*array.Int32Builder).Append(int32(p.Assists))
+		rb.Field(11).(*array.Int32Builder).Append(int32(p.Steals))
+		rb.Field(12).(*array.Int32Builder).Append(int32(p.Turnovers))
+		rb.Field(13).(*array.Int32Builder).Append(int32(p.Blocks))
+		rb.Field(14).(*array.Int32Builder).Append(int32(p.Blocked))
+		rb.Field(15).(*array.Int32Builder).Append(int32(p.Fouls))
+		rb.Field(16).(*array.Int32Builder).Append(int32(p.FoulsO))
+		rb.Field(17).(*array.Int32Builder).Append(int32(p.Technicals))
+		rb.Field(18).(*array.Int32Builder).Append(int32(p.Fouled))
+		rb.Field(19).(*array.Int32Builder).Append(int32(p.Fta))
+		rb.Field(20).(*array.Int32Builder).Append(int32(p.Ftm))
+		rb.Field(21).(*array.Float32Builder).Append(float32(
+			percentage(p.Fta, p.Ftm)))
+		rb.Field(22).(*array.Int32Builder).Append(int32(p.Fg2a))
+		rb.Field(23).(*array.Int32Builder).Append(int32(p.Fg2m))
+		rb.Field(24).(*array.Float32Builder).Append(float32(
+			percentage(p.Fg2a, p.Fg2m)))
+		rb.Field(25).(*array.Int32Builder).Append(int32(p.Fg3a))
+		rb.Field(26).(*array.Int32Builder).Append(int32(p.Fg3m))
+		rb.Field(27).(*array.Float32Builder).Append(float32(
+			percentage(p.Fg3a, p.Fg3m)))
+		rb.Field(28).(*array.Int32Builder).Append(int32(p.Fgta))
+		rb.Field(29).(*array.Int32Builder).Append(int32(p.Fgtm))
+		rb.Field(30).(*array.Float32Builder).Append(float32(
+			percentage(p.Fgta, p.Fgtm)))
+		rb.Field(31).(*array.Float32Builder).Append(float32(p.PlusMinus))
+		rb.Field(32).(*array.Int32Builder).Append(int32(p.Minutes))
+		rb.Field(33).(*array.Int32Builder).Append(int32(p.Fastbreak))
+		rb.Field(34).(*array.Int32Builder).Append(int32(p.Paint))
+		rb.Field(35).(*array.Int32Builder).Append(int32(p.SecondChance))
+		rb.Field(36).(*array.Int32Builder).Append(int32(p.Games))
+
+	}
+
+} // leaderParquet
 
 
 func getNowStamp() string {
@@ -266,8 +521,6 @@ func generatePlayers() {
 
 	playerSchema := createPlayerSchema()
 
-	scores := parseBoxscores()
-
 	builder := array.NewRecordBuilder(memory.DefaultAllocator,
 		playerSchema)
 
@@ -285,16 +538,45 @@ func generatePlayers() {
 } // generatePlayers
 
 
+func generateLeaders() {
+
+	leadersSchema := createLeadersSchema()
+
+	builder := array.NewRecordBuilder(memory.DefaultAllocator,
+		leadersSchema)
+
+	defer builder.Release()
+
+	for _, score := range scores {
+
+		boxscoreAggregator(score.Game.Home.Players)
+		boxscoreAggregator(score.Game.Away.Players)
+	
+	}
+
+	leaderParquet(builder)
+
+	flushParquet(leadersSchema, builder, LEADERS_PREFIX)
+
+} // generateLeaders
+
+
 func generateParquet() {
 
 	initWarehouseDir()
 
-	schedule = getSchedule()
+	schedule 	= getSchedule()
+
+	scores 		= parseBoxscores()
+
+	leaders = make(map[int]*stats.Base)
 
 	gt = stats.TGameType(schedule.LeagueSchedule.GameDates)
 
 	generateGames()
 
 	generatePlayers()
+
+	generateLeaders()
 
 } // generateParquet
