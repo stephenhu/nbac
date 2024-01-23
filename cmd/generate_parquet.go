@@ -32,7 +32,7 @@ var (
   gt 						map[string]int
 	schedule			*stats.NbaSchedule
 	scores        []stats.NbaBoxscore
-	leaders       map[int]*stats.Base
+	leaders       map[int]*stats.Leaders
 )
 
 
@@ -112,7 +112,7 @@ func createPlayerSchema() *arrow.Schema {
 		{Name: "fgta", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "fgtm", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "fgtp", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
-		{Name: "plusMinus", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "plusMinus", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "position", Type: arrow.BinaryTypes.String, Nullable: false},
 		{Name: "minutes", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "fastbreak", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
@@ -164,6 +164,36 @@ func createLeadersSchema() *arrow.Schema {
 		{Name: "paint", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "secondChance", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "games", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "ppg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "orebPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "drebPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "trebPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "assistsPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "stealsPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "turnoversPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "blocksPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "blockedPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "foulsPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "foulsOffensivePg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "technicalsPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fouledPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "ftaPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "ftmPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "ftpPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg2aPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg2mPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg2pPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg3aPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg3mPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fg3pPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fgtaPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fgtmPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fgtpPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "fastbreakPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "paintPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "secondChancePg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "plusMinusPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "minutesPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 	}, nil)
 
 } // createLeadersSchema
@@ -238,6 +268,17 @@ func percentage(attempted int, made int) float32 {
 } // percentage
 
 
+func percentageFp(attempted float32, made int) float32 {
+
+	if attempted == 0 {
+		return 0.0
+	} else {
+		return float32(made)/attempted
+	}
+
+} // percentageFp
+
+
 func boxscoreToParquet(s stats.NbaBoxscore, home bool,
 	rb *array.RecordBuilder) {
 
@@ -292,7 +333,7 @@ func boxscoreToParquet(s stats.NbaBoxscore, home bool,
 		rb.Field(34).(*array.Int32Builder).Append(int32(p.Statistics.Fga))
 		rb.Field(35).(*array.Int32Builder).Append(int32(p.Statistics.Fgm))
 		rb.Field(36).(*array.Float32Builder).Append(float32(p.Statistics.Fgp))
-		rb.Field(37).(*array.Int32Builder).Append(int32(p.Statistics.PlusMinus))
+		rb.Field(37).(*array.Float32Builder).Append(float32(p.Statistics.PlusMinus))
 		rb.Field(38).(*array.StringBuilder).Append(p.Position)
 		rb.Field(39).(*array.Int32Builder).Append(int32(stats.PtmToMin(p.Statistics.Minutes)))
 		rb.Field(40).(*array.Int32Builder).Append(int32(p.Statistics.PointsFast))
@@ -315,76 +356,70 @@ func boxscoreAggregator(players []stats.NbaPlayer) {
 
 		pg := playedGame(mins)
 
-		if ok {
-
-			player.Points     += p.Statistics.Points
-			player.Oreb       += p.Statistics.Oreb
-			player.Dreb       += p.Statistics.Dreb
-			player.Treb       += p.Statistics.Treb 
-			player.Assists    += p.Statistics.Assists
-			player.Steals     += p.Statistics.Steals
-			player.Turnovers  += p.Statistics.Turnovers
-			player.Blocks     += p.Statistics.Blocks
-			player.Blocked    += p.Statistics.Blocked
-			player.Fouls      += p.Statistics.Fouls
-			player.FoulsO   	+= p.Statistics.FoulsOff
-			player.Technicals += p.Statistics.Technicals
-			player.Fouled += p.Statistics.FoulsDrawn
-			player.Fta        += p.Statistics.Fta
-			player.Ftm        += p.Statistics.Ftm
-			player.Fgta       += p.Statistics.Fga
-			player.Fgtm       += p.Statistics.Fgm
-			player.Fg2a       += p.Statistics.Fg2a
-			player.Fg2m       += p.Statistics.Fg2m
-			player.Fg3a       += p.Statistics.Fg3a
-			player.Fg3m       += p.Statistics.Fg3m
-			player.PlusMinus  += p.Statistics.PlusMinus
-			player.Minutes    += mins
-			player.Fastbreak += p.Statistics.PointsFast
-			player.Paint 		+= p.Statistics.PointsPaint
-			player.SecondChance		+= p.Statistics.PointsSecond
-			player.Games 					+= pg
-			
-		} else {
-
-			np := stats.Base{
-				ID:									p.ID,
-				First:							p.First,
-				Last:								p.Last,
-				Full:       				p.Name,
-				Abv:  							p.NameShort,
-				Points: 						p.Statistics.Points,
-				Oreb: 							p.Statistics.Oreb,
-				Dreb: 							p.Statistics.Dreb,
-				Treb: 							p.Statistics.Treb,
-				Assists: 						p.Statistics.Assists,
-				Steals: 						p.Statistics.Steals,
-				Turnovers: 					p.Statistics.Turnovers,
-				Blocks: 						p.Statistics.Blocks,
-				Blocked: 						p.Statistics.Blocked,
-				Fouls: 							p.Statistics.Fouls,
-				FoulsO: 						p.Statistics.FoulsOff,
-				Technicals: 				p.Statistics.Technicals,
-				Fouled: 						p.Statistics.FoulsDrawn,
-				Fta: 								p.Statistics.Fta,
-				Ftm: 								p.Statistics.Ftm,
-				Fgta: 							p.Statistics.Fga,
-				Fgtm: 							p.Statistics.Fgm,
-				Fg2a: 							p.Statistics.Fg2a,
-				Fg2m: 							p.Statistics.Fg2m,
-				Fg3a: 							p.Statistics.Fg3a,
-				Fg3m: 							p.Statistics.Fg3m,
-				PlusMinus: 					p.Statistics.PlusMinus,
-				Minutes: 						mins,
-				Fastbreak: 					p.Statistics.PointsFast,
-				Paint: 							p.Statistics.PointsPaint,
-				SecondChance:				p.Statistics.PointsSecond,
-				Games:              pg,
-			}
-
-			leaders[p.ID] = &np
-
+		if !ok {
+			player = &stats.Leaders{}
 		}
+
+		player.ID				= p.ID
+		player.First    = p.First
+		player.Last    	= p.Last
+		player.Full   	= p.Name
+		player.Abv    	= p.NameShort
+		
+		player.Base.Points     += p.Statistics.Points
+		player.Base.Oreb       += p.Statistics.Oreb
+		player.Base.Dreb       += p.Statistics.Dreb
+		player.Base.Treb       += p.Statistics.Treb 
+		player.Base.Assists    += p.Statistics.Assists
+		player.Base.Steals     += p.Statistics.Steals
+		player.Base.Turnovers  += p.Statistics.Turnovers
+		player.Base.Blocks     += p.Statistics.Blocks
+		player.Base.Blocked    += p.Statistics.Blocked
+		player.Base.Fouls      += p.Statistics.Fouls
+		player.Base.FoulsO   	+= p.Statistics.FoulsOff
+		player.Base.Technicals += p.Statistics.Technicals
+		player.Base.Fouled += p.Statistics.FoulsDrawn
+		player.Base.Fta        += p.Statistics.Fta
+		player.Base.Ftm        += p.Statistics.Ftm
+		player.Base.Fgta       += p.Statistics.Fga
+		player.Base.Fgtm       += p.Statistics.Fgm
+		player.Base.Fg2a       += p.Statistics.Fg2a
+		player.Base.Fg2m       += p.Statistics.Fg2m
+		player.Base.Fg3a       += p.Statistics.Fg3a
+		player.Base.Fg3m       += p.Statistics.Fg3m
+		player.PlusMinus  += p.Statistics.PlusMinus
+		player.Minutes    += mins
+		player.Base.Fastbreak += p.Statistics.PointsFast
+		player.Base.Paint 		+= p.Statistics.PointsPaint
+		player.Base.SecondChance		+= p.Statistics.PointsSecond
+		player.Games 					+= pg
+
+		player.Advanced.PointsPg     = percentage(p.Statistics.Points, pg)
+		player.Advanced.OrebPg       = percentage(p.Statistics.Oreb, pg)
+		player.Advanced.DrebPg       = percentage(p.Statistics.Dreb, pg)
+		player.Advanced.TrebPg       = percentage(p.Statistics.Treb, pg)
+		player.Advanced.AssistsPg    = percentage(p.Statistics.Assists, pg)
+		player.Advanced.StealsPg     = percentage(p.Statistics.Steals, pg)
+		player.Advanced.TurnoversPg  = percentage(p.Statistics.Turnovers, pg)
+		player.Advanced.BlocksPg     = percentage(p.Statistics.Blocks, pg)
+		player.Advanced.BlockedPg    = percentage(p.Statistics.Blocked, pg)
+		player.Advanced.FoulsPg      = percentage(p.Statistics.Fouls, pg)
+		player.Advanced.FoulsOPg   	= percentage(p.Statistics.FoulsOff, pg)
+		player.Advanced.TechnicalsPg = percentage(p.Statistics.Technicals, pg)
+		player.Advanced.FouledPg = percentage(p.Statistics.FoulsDrawn, pg)
+		player.Advanced.FtaPg        = percentage(p.Statistics.Fta, pg)
+		player.Advanced.FtmPg        = percentage(p.Statistics.Ftm, pg)
+		player.Advanced.FgtaPg       = percentage(p.Statistics.Fga, pg)
+		player.Advanced.FgtmPg       = percentage(p.Statistics.Fgm, pg)
+		player.Advanced.Fg2aPg       = percentage(p.Statistics.Fg2a, pg)
+		player.Advanced.Fg2mPg       = percentage(p.Statistics.Fg2m, pg)
+		player.Advanced.Fg3aPg       = percentage(p.Statistics.Fg3a, pg)
+		player.Advanced.Fg3mPg       = percentage(p.Statistics.Fg3m, pg)
+		player.Advanced.FastbreakPg = percentage(p.Statistics.PointsFast, pg)
+		player.Advanced.PaintPg 		= percentage(p.Statistics.PointsPaint, pg)
+		player.Advanced.SecondChancePg		= percentage(p.Statistics.PointsSecond, pg)
+
+		leaders[p.ID] = player
 
 	}
 
@@ -401,42 +436,101 @@ func leaderParquet(rb *array.RecordBuilder) {
 		rb.Field(3).(*array.StringBuilder).Append(p.Last)
     rb.Field(4).(*array.StringBuilder).Append(p.Full)
 	  rb.Field(5).(*array.StringBuilder).Append(p.Abv)
-		rb.Field(6).(*array.Int32Builder).Append(int32(p.Points))
-		rb.Field(7).(*array.Int32Builder).Append(int32(p.Oreb))
-		rb.Field(8).(*array.Int32Builder).Append(int32(p.Dreb))
-		rb.Field(9).(*array.Int32Builder).Append(int32(p.Treb))
-		rb.Field(10).(*array.Int32Builder).Append(int32(p.Assists))
-		rb.Field(11).(*array.Int32Builder).Append(int32(p.Steals))
-		rb.Field(12).(*array.Int32Builder).Append(int32(p.Turnovers))
-		rb.Field(13).(*array.Int32Builder).Append(int32(p.Blocks))
-		rb.Field(14).(*array.Int32Builder).Append(int32(p.Blocked))
-		rb.Field(15).(*array.Int32Builder).Append(int32(p.Fouls))
-		rb.Field(16).(*array.Int32Builder).Append(int32(p.FoulsO))
-		rb.Field(17).(*array.Int32Builder).Append(int32(p.Technicals))
-		rb.Field(18).(*array.Int32Builder).Append(int32(p.Fouled))
-		rb.Field(19).(*array.Int32Builder).Append(int32(p.Fta))
-		rb.Field(20).(*array.Int32Builder).Append(int32(p.Ftm))
+		rb.Field(6).(*array.Int32Builder).Append(int32(p.Base.Points))
+		rb.Field(7).(*array.Int32Builder).Append(int32(p.Base.Oreb))
+		rb.Field(8).(*array.Int32Builder).Append(int32(p.Base.Dreb))
+		rb.Field(9).(*array.Int32Builder).Append(int32(p.Base.Treb))
+		rb.Field(10).(*array.Int32Builder).Append(int32(p.Base.Assists))
+		rb.Field(11).(*array.Int32Builder).Append(int32(p.Base.Steals))
+		rb.Field(12).(*array.Int32Builder).Append(int32(p.Base.Turnovers))
+		rb.Field(13).(*array.Int32Builder).Append(int32(p.Base.Blocks))
+		rb.Field(14).(*array.Int32Builder).Append(int32(p.Base.Blocked))
+		rb.Field(15).(*array.Int32Builder).Append(int32(p.Base.Fouls))
+		rb.Field(16).(*array.Int32Builder).Append(int32(p.Base.FoulsO))
+		rb.Field(17).(*array.Int32Builder).Append(int32(p.Base.Technicals))
+		rb.Field(18).(*array.Int32Builder).Append(int32(p.Base.Fouled))
+		rb.Field(19).(*array.Int32Builder).Append(int32(p.Base.Fta))
+		rb.Field(20).(*array.Int32Builder).Append(int32(p.Base.Ftm))
 		rb.Field(21).(*array.Float32Builder).Append(float32(
-			percentage(p.Fta, p.Ftm)))
-		rb.Field(22).(*array.Int32Builder).Append(int32(p.Fg2a))
-		rb.Field(23).(*array.Int32Builder).Append(int32(p.Fg2m))
+			percentage(p.Base.Fta, p.Base.Ftm)))
+		rb.Field(22).(*array.Int32Builder).Append(int32(p.Base.Fg2a))
+		rb.Field(23).(*array.Int32Builder).Append(int32(p.Base.Fg2m))
 		rb.Field(24).(*array.Float32Builder).Append(float32(
-			percentage(p.Fg2a, p.Fg2m)))
-		rb.Field(25).(*array.Int32Builder).Append(int32(p.Fg3a))
-		rb.Field(26).(*array.Int32Builder).Append(int32(p.Fg3m))
+			percentage(p.Base.Fg2a, p.Base.Fg2m)))
+		rb.Field(25).(*array.Int32Builder).Append(int32(p.Base.Fg3a))
+		rb.Field(26).(*array.Int32Builder).Append(int32(p.Base.Fg3m))
 		rb.Field(27).(*array.Float32Builder).Append(float32(
-			percentage(p.Fg3a, p.Fg3m)))
-		rb.Field(28).(*array.Int32Builder).Append(int32(p.Fgta))
-		rb.Field(29).(*array.Int32Builder).Append(int32(p.Fgtm))
+			percentage(p.Base.Fg3a, p.Base.Fg3m)))
+		rb.Field(28).(*array.Int32Builder).Append(int32(p.Base.Fgta))
+		rb.Field(29).(*array.Int32Builder).Append(int32(p.Base.Fgtm))
 		rb.Field(30).(*array.Float32Builder).Append(float32(
-			percentage(p.Fgta, p.Fgtm)))
+			percentage(p.Base.Fgta, p.Base.Fgtm)))
 		rb.Field(31).(*array.Float32Builder).Append(float32(p.PlusMinus))
 		rb.Field(32).(*array.Int32Builder).Append(int32(p.Minutes))
-		rb.Field(33).(*array.Int32Builder).Append(int32(p.Fastbreak))
-		rb.Field(34).(*array.Int32Builder).Append(int32(p.Paint))
-		rb.Field(35).(*array.Int32Builder).Append(int32(p.SecondChance))
+		rb.Field(33).(*array.Int32Builder).Append(int32(p.Base.Fastbreak))
+		rb.Field(34).(*array.Int32Builder).Append(int32(p.Base.Paint))
+		rb.Field(35).(*array.Int32Builder).Append(int32(p.Base.SecondChance))
 		rb.Field(36).(*array.Int32Builder).Append(int32(p.Games))
-
+		rb.Field(37).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Points, p.Games)))
+		rb.Field(38).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Oreb, p.Games)))
+		rb.Field(39).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Dreb, p.Games)))
+		rb.Field(40).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Treb, p.Games)))
+		rb.Field(41).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Assists, p.Games)))
+		rb.Field(42).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Steals, p.Games)))
+		rb.Field(43).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Turnovers, p.Games)))
+		rb.Field(44).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Blocks, p.Games)))
+		rb.Field(45).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Blocked, p.Games)))
+		rb.Field(46).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fouls, p.Games)))
+		rb.Field(47).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.FoulsO, p.Games)))		
+		rb.Field(48).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Technicals, p.Games)))
+		rb.Field(49).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fouled, p.Games)))
+		rb.Field(50).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fta, p.Games)))
+		rb.Field(51).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Ftm, p.Games)))
+		rb.Field(52).(*array.Float32Builder).Append(float32(
+			percentageFp(p.Base.Ftp, p.Games)))
+		rb.Field(53).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fg2a, p.Games)))
+		rb.Field(54).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fg2m, p.Games)))
+		rb.Field(55).(*array.Float32Builder).Append(float32(
+			percentageFp(p.Base.Fg2p, p.Games)))
+		rb.Field(56).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fg3a, p.Games)))
+		rb.Field(57).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fg3m, p.Games)))
+		rb.Field(58).(*array.Float32Builder).Append(float32(
+			percentageFp(p.Base.Fg3p, p.Games)))
+		rb.Field(59).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fgta, p.Games)))
+		rb.Field(60).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fgtm, p.Games)))
+		rb.Field(61).(*array.Float32Builder).Append(float32(
+			percentageFp(p.Base.Fgtp, p.Games)))
+		rb.Field(62).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Fastbreak, p.Games)))
+		rb.Field(63).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.Paint, p.Games)))
+		rb.Field(64).(*array.Float32Builder).Append(float32(
+			percentage(p.Base.SecondChance, p.Games)))
+		rb.Field(65).(*array.Float32Builder).Append(float32(
+			percentage(p.Minutes, p.Games)))
+		rb.Field(66).(*array.Float32Builder).Append(float32(
+			percentageFp(p.PlusMinus, p.Games)))
 	}
 
 } // leaderParquet
@@ -561,6 +655,12 @@ func generateLeaders() {
 } // generateLeaders
 
 
+func generateStandings() {
+
+
+} // generateStandings
+
+
 func generateParquet() {
 
 	initWarehouseDir()
@@ -569,7 +669,7 @@ func generateParquet() {
 
 	scores 		= parseBoxscores()
 
-	leaders = make(map[int]*stats.Base)
+	leaders = make(map[int]*stats.Leaders)
 
 	gt = stats.TGameType(schedule.LeagueSchedule.GameDates)
 
@@ -578,5 +678,7 @@ func generateParquet() {
 	generatePlayers()
 
 	generateLeaders()
+
+	generateStandings()
 
 } // generateParquet
