@@ -179,16 +179,12 @@ func createLeadersSchema() *arrow.Schema {
 		{Name: "fouledPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "ftaPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "ftmPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
-		{Name: "ftpPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "fg2aPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "fg2mPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
-		{Name: "fg2pPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "fg3aPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "fg3mPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
-		{Name: "fg3pPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "fgtaPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "fgtmPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
-		{Name: "fgtpPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "fastbreakPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "paintPg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
 		{Name: "secondChancePg", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
@@ -255,28 +251,6 @@ func playedGame(mins int) int {
 	}
 
 } // playedGame
-
-
-func percentage(attempted int, made int) float32 {
-
-	if attempted == 0 {
-		return 0.0
-	} else {
-		return float32(made)/float32(attempted)
-	}
-
-} // percentage
-
-
-func percentageFp(attempted float32, made int) float32 {
-
-	if attempted == 0 {
-		return 0.0
-	} else {
-		return float32(made)/attempted
-	}
-
-} // percentageFp
 
 
 func boxscoreToParquet(s stats.NbaBoxscore, home bool,
@@ -472,65 +446,57 @@ func leaderParquet(rb *array.RecordBuilder) {
 		rb.Field(35).(*array.Int32Builder).Append(int32(p.Base.SecondChance))
 		rb.Field(36).(*array.Int32Builder).Append(int32(p.Games))
 		rb.Field(37).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Points, p.Games)))
+			perGamePercentage(p.Games, p.Base.Points)))
 		rb.Field(38).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Oreb, p.Games)))
+			perGamePercentage(p.Games, p.Base.Oreb)))
 		rb.Field(39).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Dreb, p.Games)))
+			perGamePercentage(p.Games, p.Base.Dreb, )))
 		rb.Field(40).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Treb, p.Games)))
+			perGamePercentage(p.Games, p.Base.Treb)))
 		rb.Field(41).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Assists, p.Games)))
+			perGamePercentage(p.Games, p.Base.Assists)))
 		rb.Field(42).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Steals, p.Games)))
+			perGamePercentage(p.Games, p.Base.Steals)))
 		rb.Field(43).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Turnovers, p.Games)))
+			perGamePercentage(p.Games, p.Base.Turnovers)))
 		rb.Field(44).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Blocks, p.Games)))
+			perGamePercentage(p.Games, p.Base.Blocks)))
 		rb.Field(45).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Blocked, p.Games)))
+			perGamePercentage(p.Games, p.Base.Blocked)))
 		rb.Field(46).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fouls, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fouls)))
 		rb.Field(47).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.FoulsO, p.Games)))		
+			perGamePercentage(p.Games, p.Base.FoulsO)))		
 		rb.Field(48).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Technicals, p.Games)))
+			perGamePercentage(p.Games, p.Base.Technicals)))
 		rb.Field(49).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fouled, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fouled)))
 		rb.Field(50).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fta, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fta)))
 		rb.Field(51).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Ftm, p.Games)))
+			perGamePercentage(p.Games, p.Base.Ftm)))
 		rb.Field(52).(*array.Float32Builder).Append(float32(
-			percentageFp(p.Base.Ftp, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fg2a)))
 		rb.Field(53).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fg2a, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fg2m)))
 		rb.Field(54).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fg2m, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fg3a)))
 		rb.Field(55).(*array.Float32Builder).Append(float32(
-			percentageFp(p.Base.Fg2p, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fg3m)))
 		rb.Field(56).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fg3a, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fgta)))
 		rb.Field(57).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fg3m, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fgtm)))
 		rb.Field(58).(*array.Float32Builder).Append(float32(
-			percentageFp(p.Base.Fg3p, p.Games)))
+			perGamePercentage(p.Games, p.Base.Fastbreak)))
 		rb.Field(59).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fgta, p.Games)))
+			perGamePercentage(p.Games, p.Base.Paint)))
 		rb.Field(60).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fgtm, p.Games)))
+			perGamePercentage(p.Games, p.Base.SecondChance)))
 		rb.Field(61).(*array.Float32Builder).Append(float32(
-			percentageFp(p.Base.Fgtp, p.Games)))
+			perGamePercentageFp(p.Games, p.PlusMinus)))
 		rb.Field(62).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Fastbreak, p.Games)))
-		rb.Field(63).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.Paint, p.Games)))
-		rb.Field(64).(*array.Float32Builder).Append(float32(
-			percentage(p.Base.SecondChance, p.Games)))
-		rb.Field(65).(*array.Float32Builder).Append(float32(
-			percentage(p.Minutes, p.Games)))
-		rb.Field(66).(*array.Float32Builder).Append(float32(
-			percentageFp(p.PlusMinus, p.Games)))
+			perGamePercentage(p.Games, p.Minutes)))
 	}
 
 } // leaderParquet

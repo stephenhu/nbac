@@ -1,5 +1,4 @@
 *.exe
-*.json
 *.parquet
 nbac
 19*

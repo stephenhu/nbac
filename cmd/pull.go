@@ -25,12 +25,7 @@ var (
 
 func init() {
 
-	pullCmd.PersistentFlags().StringVarP(&fYear, "year", "y", 
-	  stats.GetCurrentSeason(), "Year to start download.  Default season is current")
-
 	pullCmd.AddCommand(pullNbaCmd)
-
-	initDir()
 
 } // init
 
@@ -66,6 +61,9 @@ func createDir(d string) {
 
 
 func initDir() {
+
+	log.Println(stats.GetCurrentSeason())
+	log.Println(fDir)
 
 	if !fileExists(fDir) {
 		createDir(fDir)

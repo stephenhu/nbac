@@ -13,7 +13,8 @@ import (
 
 
 const (
-	WAREHOUSE_DIR					= ".warehouse"
+	CORE_DIR             	= "core"
+	WAREHOUSE_DIR					= "data"
 	PLAYBYPLAY            = "playbyplay.json"
 	SCHEDULE              = "schedule.json"
 )

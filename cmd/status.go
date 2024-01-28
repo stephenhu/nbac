@@ -33,9 +33,6 @@ var (
 
 func init() {
 
-	statusCmd.PersistentFlags().StringVarP(&fDir, "dir", "d", 
-	  stats.GetCurrentSeason(), "Directory where data is stored")
-
 	fSched = getSchedule()
 
 } // init
@@ -238,9 +235,5 @@ func getStatus() {
 	fmt.Printf("Status Time:\t\t %s\n", today.Format(time.DateTime))
 
 	getGameDayDetail()
-
-	
-
-
 	
 } // getStatus

@@ -83,11 +83,8 @@ func pullFrom(d string) {
 						
 						box := stats.NbaGetBoxscoreJson(game.ID)
 	
-						//if len(box.Meta.Time) != 0 && len(box.Meta.Request) != 0 {
-	
 							name := stats.GameDateToString(day.GameDate)
 	
-							// TODO: is this windows friendly?
 							dir := fmt.Sprintf("%s/%s", fDir, name)
 	
 							if !fileExists(dir) {
@@ -124,6 +121,8 @@ func pullFrom(d string) {
 
 func pullResume() {
 
+	initDir()
+	
 	days := getGameDays()
 
 	if len(days) == 1 || len(days) == 0 {

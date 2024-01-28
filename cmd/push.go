@@ -35,9 +35,6 @@ var (
 
 func init() {
 
-	pushCmd.PersistentFlags().StringVarP(&fFrom, "from", "f", 
-	  DEFAULT_PATH, "Path to read from")
-
 	pushCmd.AddCommand(redisCmd)
 
 } // init
