@@ -4,9 +4,6 @@ import (
 	"fmt"
   "log"
 	"os"
-	//"path/filepath"
-	//"strings"
-	"time"
 
 	"github.com/apache/arrow/go/v15/arrow"
   "github.com/apache/arrow/go/v15/arrow/array"
@@ -502,15 +499,6 @@ func leaderParquet(rb *array.RecordBuilder) {
 } // leaderParquet
 
 
-func getNowStamp() string {
-  
-	now := time.Now()
-	
-	return now.Format(NBAC_DATE_FORMAT)
-
-} // getNowStamp
-
-
 func flushParquet(schema *arrow.Schema, b *array.RecordBuilder,
 	name string) {
 
@@ -609,8 +597,12 @@ func generateLeaders() {
 
 	for _, score := range scores {
 
-		boxscoreAggregator(score.Game.Home.Players)
-		boxscoreAggregator(score.Game.Away.Players)
+		if gt[score.Game.ID] == stats.REGULAR {
+			
+			boxscoreAggregator(score.Game.Home.Players)
+			boxscoreAggregator(score.Game.Away.Players)
+
+		}
 	
 	}
 
@@ -623,21 +615,43 @@ func generateLeaders() {
 
 func generateStandings() {
 
+	
 
 } // generateStandings
+
+
+func initScheduleGameTypes() {
+
+	gt = make(map[string]int)
+
+	for _, days := range schedule.LeagueSchedule.GameDates {
+		for _, g := range days.Games {
+			
+			if g.WeekNumber == 0 {
+				gt[g.ID] = stats.PRESEASON
+			} else if g.WeekNumber > 0 {
+				gt[g.ID] = stats.REGULAR
+			} else if g.WeekNumber > 25 {
+				gt[g.ID] = stats.PLAYOFFS
+			}
+
+		}
+	}
+
+} // initScheduleGameTypes
 
 
 func generateParquet() {
 
 	initWarehouseDir()
 
-	schedule 	= getSchedule()
+	schedule = getSchedule()
 
-	scores 		= parseBoxscores()
+	scores = parseBoxscores()
 
 	leaders = make(map[int]*stats.Leaders)
 
-	gt = stats.TGameType(schedule.LeagueSchedule.GameDates)
+	initScheduleGameTypes()
 
 	generateGames()
 

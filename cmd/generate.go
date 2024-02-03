@@ -92,11 +92,7 @@ func getBoxscore(f string) *stats.NbaBoxscore {
 			return nil
 
 		} else {
-
 			return &s
-			//addPlayerStats(s.Game, true)
-			//addPlayerStats(s.Game, false)	
-			
 		}
 
 	}

@@ -83,28 +83,26 @@ func pullFrom(d string) {
 						
 						box := stats.NbaGetBoxscoreJson(game.ID)
 	
-							name := stats.GameDateToString(day.GameDate)
-	
-							dir := fmt.Sprintf("%s/%s", fDir, name)
-	
-							if !fileExists(dir) {
-								createDir(dir)
-							}
-	
-							fn 	:= fmt.Sprintf("%s/%s.json", dir, game.ID)
-							fn2 := fmt.Sprintf("%s/%s_playbyplay.json", dir, game.ID)
+						name := stats.GameDateToString(day.GameDate)
 
-							if !fileExists(fn) {
-								write(box, fn)
-							}
+						dir := fmt.Sprintf("%s/%s", fDir, name)
 
-							plays := stats.NbaGetPlaysJson(game.ID)
+						if !fileExists(dir) {
+							createDir(dir)
+						}
 
-							if !fileExists(fn2) {
-								write(plays, fn2)
-							}
-			
-						//}
+						fn 	:= fmt.Sprintf("%s/%s.json", dir, game.ID)
+						fn2 := fmt.Sprintf("%s/%s_playbyplay.json", dir, game.ID)
+
+						if !fileExists(fn) {
+							write(box, fn)
+						}
+
+						plays := stats.NbaGetPlaysJson(game.ID)
+
+						if !fileExists(fn2) {
+							write(plays, fn2)
+						}
 						
 					}
 	

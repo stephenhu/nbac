@@ -1,5 +1,9 @@
 package cmd
 
+import (
+	"time"
+)
+
 
 func percentage(attempted int, made int) float32 {
 
@@ -44,3 +48,11 @@ func perGamePercentageFp(games int, d float32) float32 {
 
 } // perGamePercentageFp
 
+
+func getNowStamp() string {
+  
+	now := time.Now()
+	
+	return now.Format(NBAC_DATE_FORMAT)
+
+} // getNowStamp
