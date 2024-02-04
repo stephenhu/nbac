@@ -701,6 +701,9 @@ func generateStandings() {
 	}
 
 	stats.CalculateStandings(standings, scores)
+
+	stats.UpdateLast10(standings)
+	stats.UpdateStreak(standings)
 	
 	saveStandings()
 	
