@@ -36,7 +36,7 @@ var (
 func init() {
 
 	generateCmd.AddCommand(generateStatsCmd)
-	generateCmd.AddCommand(generateParquetCmd)
+	generateCmd.AddCommand(generateDataCmd)
 
 } // init
 

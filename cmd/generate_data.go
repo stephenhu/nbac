@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
   "log"
 	"os"
@@ -30,17 +31,18 @@ var (
 	schedule			*stats.NbaSchedule
 	scores        []stats.NbaBoxscore
 	leaders       map[int]*stats.Leaders
+	standings			map[int]*stats.Standing
 )
 
 
 var (
 
-	generateParquetCmd = &cobra.Command{
-		Use: "parquet",
+	generateDataCmd = &cobra.Command{
+		Use: "data",
 		Short: "calculate statistics and store to parquet",
 		Long: "calculate season statistics",
 		Run: func(cmd *cobra.Command, args []string) {
-			generateParquet()
+			generateData()
 		},
 		
 	}
@@ -50,6 +52,17 @@ var (
 
 func init() {
 } // init
+
+
+func checkWin(game *stats.NbaGame) bool {
+
+	if game.Home.Statistics.Points > game.Away.Statistics.Points {
+		return true
+	} else {
+		return false
+	}
+	
+} // checkWin
 
 
 func createGamesSchema() *arrow.Schema {
@@ -195,17 +208,41 @@ func createLeadersSchema() *arrow.Schema {
 func createStandingsSchema() *arrow.Schema {
 
 	return arrow.NewSchema([]arrow.Field{
-		{Name: "playerId", Type: arrow.BinaryTypes.String, Nullable: false},
-		{Name: "seasonYear", Type: arrow.BinaryTypes.String, Nullable: false},
-		{Name: "first", Type: arrow.BinaryTypes.String, Nullable: false},
-		{Name: "last", Type: arrow.BinaryTypes.String, Nullable: false},
-		{Name: "full", Type: arrow.BinaryTypes.String, Nullable: false},
-		{Name: "abv", Type: arrow.BinaryTypes.String, Nullable: false},
-		{Name: "points", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "teamId", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "code", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "rank", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "win", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "loss", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "wpct", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "gb", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
+		{Name: "homeW", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "homeL", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "awayW", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "awayL", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "divW", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "divL", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "confW", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "confL", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "lastTenW", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "lastTenL", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "streakW", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "streakL", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "totalPf", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "totalPa", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "p1", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "p2", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "p3", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "p4", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "pot", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "oreb", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "dreb", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "treb", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "assists", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "at", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "bench", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "biggestLead", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "biggestRun", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "pointsFromTurnovers", Type: arrow.BinaryTypes.String, Nullable: false},
 		{Name: "steals", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "turnovers", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "blocks", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
@@ -226,28 +263,19 @@ func createStandingsSchema() *arrow.Schema {
 		{Name: "fgta", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "fgtm", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "fgtp", Type: arrow.PrimitiveTypes.Float32, Nullable: false},
-		{Name: "plusMinus", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
-		{Name: "positon", Type: arrow.BinaryTypes.String, Nullable: false},
-		{Name: "minutes", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "efg", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "trueA", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "trueM", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "trueP", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "leadTime", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "ties", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "fastbreak", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "paint", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "secondChance", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "gameType", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
-		{Name: "games", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 	}, nil)
 
 } // createStandingsSchema
-
-
-func playedGame(mins int) int {
-
-	if mins > 0 {
-		return 1
-	} else {
-		return 0
-	}
-
-} // playedGame
 
 
 func boxscoreToParquet(s stats.NbaBoxscore, home bool,
@@ -499,6 +527,32 @@ func leaderParquet(rb *array.RecordBuilder) {
 } // leaderParquet
 
 
+func teamAggregator(game *stats.NbaGame, isHome bool) {
+
+	var team stats.NbaTeamScore
+
+	if isHome {
+		team = game.Home
+	} else {
+		team = game.Away
+	}
+
+	_, ok := standings[game.Home.ID]
+
+	if !ok {
+		standings[team.ID] = &stats.Standing{}
+	}
+
+	standings[team.ID].TeamID 	= team.ID
+	//standings[team.ID].Name 		= team.Name
+	standings[team.ID].Code 		= team.ShortName
+	//standings[team.ID].TeamId = team.City
+
+	standings[team.ID].Points 	= team.ID
+
+} // teamAggregator
+
+
 func flushParquet(schema *arrow.Schema, b *array.RecordBuilder,
 	name string) {
 
@@ -615,8 +669,26 @@ func generateLeaders() {
 
 func generateStandings() {
 
-	
+	for _, score := range scores {
 
+		stats.ParseWl(standings, &score.Game)
+
+		teamAggregator(&score.Game, true)
+		teamAggregator(&score.Game, false)
+
+	}
+
+	fn := fmt.Sprintf("%s/%s/%s.%s%s", fDir, WAREHOUSE_DIR,
+    STANDINGS_PREFIX, getNowStamp(), EXT_JSON)
+	
+	j, err := json.Marshal(standings)
+
+	if err != nil {
+		log.Println(err)		
+	} else {
+		write(j, fn)
+	}
+	
 } // generateStandings
 
 
@@ -641,7 +713,7 @@ func initScheduleGameTypes() {
 } // initScheduleGameTypes
 
 
-func generateParquet() {
+func generateData() {
 
 	initWarehouseDir()
 
@@ -650,6 +722,8 @@ func generateParquet() {
 	scores = parseBoxscores()
 
 	leaders = make(map[int]*stats.Leaders)
+
+	standings = make(map[int]*stats.Standing)
 
 	initScheduleGameTypes()
 
@@ -661,4 +735,4 @@ func generateParquet() {
 
 	generateStandings()
 
-} // generateParquet
+	} // generateData

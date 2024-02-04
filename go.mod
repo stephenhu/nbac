@@ -6,8 +6,10 @@ require (
 	github.com/apache/arrow/go/v15 v15.0.0-20240113220206-e6323646558e
 	github.com/gomodule/redigo v1.8.9
 	github.com/spf13/cobra v1.5.0
-	github.com/stephenhu/stats v0.3.18
+	github.com/stephenhu/stats v0.4.10
 )
+
+replace github.com/stephenhu/stats => /Users/hu/work/src/github.com/stephenhu/stats
 
 require (
 	github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c // indirect

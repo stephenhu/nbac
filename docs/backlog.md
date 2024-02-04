@@ -10,5 +10,7 @@
 * resume should be based on status, status should provide a diff of missing files and that's what should be downloaded
 * ~~for leaderboard, don't count preseason and playoff games~~
 * count leaderboard for regular season and playoffs, including in-season
+* player, assists to turnover ratio
+* usage: nbac generate pq
 * ~~resume sync~~
 * ~~file check~~

@@ -56,3 +56,14 @@ func getNowStamp() string {
 	return now.Format(NBAC_DATE_FORMAT)
 
 } // getNowStamp
+
+
+func playedGame(mins int) int {
+
+	if mins > 0 {
+		return 1
+	} else {
+		return 0
+	}
+
+} // playedGame
