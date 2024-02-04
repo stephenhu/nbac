@@ -77,6 +77,8 @@ func createGamesSchema() *arrow.Schema {
 		{Name: "awayId", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 		{Name: "awayCode", Type: arrow.BinaryTypes.String, Nullable: false},
 		{Name: "gameId", Type: arrow.BinaryTypes.String, Nullable: false},
+		{Name: "homeScore", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
+		{Name: "awayScore", Type: arrow.PrimitiveTypes.Int32, Nullable: false},
 	}, nil)
 
 } // createGamesSchema
@@ -544,11 +546,9 @@ func teamAggregator(game *stats.NbaGame, isHome bool) {
 	}
 
 	standings[team.ID].TeamID 	= team.ID
-	//standings[team.ID].Name 		= team.Name
+	standings[team.ID].Name 		= stats.AllTeams[team.ID].Name
+	standings[team.ID].City 		= stats.AllTeams[team.ID].City
 	standings[team.ID].Code 		= team.ShortName
-	//standings[team.ID].TeamId = team.City
-
-	standings[team.ID].Points 	= team.ID
 
 } // teamAggregator
 
@@ -583,6 +583,22 @@ func flushParquet(schema *arrow.Schema, b *array.RecordBuilder,
 } // flushParquet
 
 
+func saveStandings() {
+
+	fn := fmt.Sprintf("%s/%s/%s.%s%s", fDir, WAREHOUSE_DIR,
+		STANDINGS_PREFIX, getNowStamp(), EXT_JSON)
+
+	j, err := json.Marshal(standings)
+
+	if err != nil {
+		log.Println(err)		
+	} else {
+		write(j, fn)
+	}
+
+} // saveStandings
+
+
 func generateGames() {
 
 	gamesSchema := createGamesSchema()
@@ -602,13 +618,15 @@ func generateGames() {
 			builder.Field(1).(*array.StringBuilder).Append(
 				schedule.LeagueSchedule.SeasonYear)
 			
-			builder.Field(2).(*array.StringBuilder).Append(g.GameTime)
+			builder.Field(2).(*array.StringBuilder).Append(gd.GameDate)
 			builder.Field(3).(*array.Int32Builder).Append(int32(g.WeekNumber))
 			builder.Field(4).(*array.Int32Builder).Append(int32(g.Home.ID))
 			builder.Field(5).(*array.StringBuilder).Append(g.Home.ShortName)
 			builder.Field(6).(*array.Int32Builder).Append(int32(g.Away.ID))
 			builder.Field(7).(*array.StringBuilder).Append(g.Away.ShortName)
 			builder.Field(8).(*array.StringBuilder).Append(g.ID)
+			builder.Field(9).(*array.Int32Builder).Append(int32(g.Home.Score))
+			builder.Field(10).(*array.Int32Builder).Append(int32(g.Away.Score))
 
 		}
 
@@ -671,6 +689,10 @@ func generateStandings() {
 
 	for _, score := range scores {
 
+		if len(score.Game.ID) == 0 {
+			continue
+		}
+
 		stats.ParseWl(standings, &score.Game)
 
 		teamAggregator(&score.Game, true)
@@ -678,16 +700,9 @@ func generateStandings() {
 
 	}
 
-	fn := fmt.Sprintf("%s/%s/%s.%s%s", fDir, WAREHOUSE_DIR,
-    STANDINGS_PREFIX, getNowStamp(), EXT_JSON)
+	stats.CalculateStandings(standings, scores)
 	
-	j, err := json.Marshal(standings)
-
-	if err != nil {
-		log.Println(err)		
-	} else {
-		write(j, fn)
-	}
+	saveStandings()
 	
 } // generateStandings
 

@@ -11,6 +11,8 @@
 * ~~for leaderboard, don't count preseason and playoff games~~
 * count leaderboard for regular season and playoffs, including in-season
 * player, assists to turnover ratio
-* usage: nbac generate pq
+* ~~usage: nbac generate data~~
 * ~~resume sync~~
 * ~~file check~~
+* use library helpers for Pct
+* major issue with incomplete scores, so if a game is in progress, the json is available, but because the file is downloaded, it is considered finished (gameStatusText shows "Final")
