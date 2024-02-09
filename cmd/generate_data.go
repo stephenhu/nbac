@@ -689,7 +689,7 @@ func generateStandings() {
 
 	for _, score := range scores {
 
-		if len(score.Game.ID) == 0 {
+		if len(score.Game.ID) == 0 || score.Game.ID == "0"{
 			continue
 		}
 
@@ -704,7 +704,7 @@ func generateStandings() {
 
 	stats.UpdateLast10(standings)
 	stats.UpdateStreak(standings)
-	
+
 	saveStandings()
 	
 } // generateStandings
