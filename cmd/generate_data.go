@@ -30,6 +30,7 @@ var (
   gt 						map[string]int
 	schedule			*stats.NbaSchedule
 	scores        []stats.NbaBoxscore
+	playerMap     *stats.PlayerMap
 	leaders       map[int]*stats.Leaders
 	standings			map[int]*stats.Standing
 )
@@ -710,6 +711,33 @@ func generateStandings() {
 } // generateStandings
 
 
+func generatePlayerInfo() {
+
+	playerMap = &stats.PlayerMap{}
+
+	for _, player := range leaders {
+
+		playerMap.Players[player.ID] = &stats.PlayerInfo{
+			ID: player.ID,
+			First: player.First,
+			Last: player.Last,
+			Full: player.Full,
+			Abv: player.Abv,
+		}
+
+	}
+
+	j, err := json.Marshal(playerMap)
+
+	if err != nil {
+		log.Println(err)
+	} else {
+		write(j, "test.json")
+	}
+
+} // generatePlayerInfo
+
+
 func initScheduleGameTypes() {
 
 	gt = make(map[string]int)
@@ -753,4 +781,6 @@ func generateData() {
 
 	generateStandings()
 
-	} // generateData
+	generatePlayerInfo()
+
+} // generateData

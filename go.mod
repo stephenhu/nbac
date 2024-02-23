@@ -6,7 +6,7 @@ require (
 	github.com/apache/arrow/go/v15 v15.0.0-20240113220206-e6323646558e
 	github.com/gomodule/redigo v1.8.9
 	github.com/spf13/cobra v1.5.0
-	github.com/stephenhu/stats v0.4.10
+	github.com/stephenhu/stats v0.5.0
 )
 
 replace github.com/stephenhu/stats => /Users/hu/work/src/github.com/stephenhu/stats
