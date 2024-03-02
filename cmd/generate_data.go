@@ -534,6 +534,10 @@ func teamAggregator(game *stats.NbaGame, isHome bool) {
 
 	var team stats.NbaTeamScore
 
+	if !stats.CheckNbaTeam(game.Home.ID, game.Away.ID) {
+		return
+	}
+
 	if isHome {
 		team = game.Home
 	} else {
@@ -713,7 +717,9 @@ func generateStandings() {
 
 func generatePlayerInfo() {
 
-	playerMap = &stats.PlayerMap{}
+	playerMap = &stats.PlayerMap{
+		Players: map[int]*stats.PlayerInfo{},
+	}
 
 	for _, player := range leaders {
 
