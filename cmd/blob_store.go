@@ -52,6 +52,36 @@ func readConfig() {
 } // readConfig
 
 
+func checkBuckets() {
+
+	ctx := context.Background()
+
+	raw 			:= BucketRaw(cy)
+	analytics := BucketAnalytics(cy)
+
+	ok, err := blobs.BucketExists(ctx, raw)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	if !ok {
+		blobs.MakeBucket(ctx, raw, minio.MakeBucketOptions{})
+	}
+
+	ok, err = blobs.BucketExists(ctx, analytics)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	if !ok {
+		blobs.MakeBucket(ctx, analytics, minio.MakeBucketOptions{})
+	}
+
+} // checkBuckets
+
+
 func initBlobStore() {
 
 	readConfig()
@@ -67,6 +97,8 @@ func initBlobStore() {
 	}
 
 	blobs = c
+
+	checkBuckets()
 
 } // initBlobStore
 
