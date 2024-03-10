@@ -28,7 +28,6 @@ const (
 
 var (
   gt 						map[string]int
-	schedule			*stats.NbaSchedule
 	scores        []stats.NbaBoxscore
 	playerMap     *stats.PlayerMap
 	leaders       map[int]*stats.Leaders
@@ -598,7 +597,7 @@ func saveStandings() {
 	if err != nil {
 		log.Println(err)		
 	} else {
-		write(j, fn)
+		BlobPut(BucketAnalytics(cy), fn, j)
 	}
 
 } // saveStandings
@@ -738,7 +737,7 @@ func generatePlayerInfo() {
 	if err != nil {
 		log.Println(err)
 	} else {
-		write(j, "test.json")
+		BlobPut(BucketAnalytics(cy), "test.json", j)
 	}
 
 } // generatePlayerInfo
@@ -769,7 +768,7 @@ func generateData() {
 
 	initWarehouseDir()
 
-	schedule = getSchedule()
+	loadSchedule(cy)
 
 	scores = parseBoxscores()
 

@@ -12,6 +12,7 @@ const (
   DEFAULT_PATH					= "."
 	PBP_SUFFIX           	= "playbyplay"
 	LOCALE_EST            = "EST"
+	DEFAULT_CONFIG_FILE   = "conf/config.json"
 )
 
 const (
@@ -23,6 +24,8 @@ const (
 
 const (
 	EXT_JSON							= ".json"
+	JSON_FILE             = "json"
+	SCHEDULE_BLOB        	= "schedule.json"
 )
 
 
@@ -32,6 +35,8 @@ var (
 	fDir					string					= DEFAULT_PATH
 	fFrom					string
 	fYear       	string
+
+	cy   					string
 
 	rootCmd = &cobra.Command{
 		Use: "nbac",
@@ -55,6 +60,10 @@ func init() {
 	rootCmd.AddCommand(statusCmd)
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(generateCmd)
+
+	cy = stats.GetCurrentSeason()
+
+	initBlobStore()
 
 } // init
 

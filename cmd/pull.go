@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/stephenhu/stats"
 )
 
 
@@ -62,9 +61,6 @@ func createDir(d string) {
 
 func initDir() {
 
-	log.Println(stats.GetCurrentSeason())
-	log.Println(fDir)
-
 	if !fileExists(fDir) {
 		createDir(fDir)
 	}
@@ -72,7 +68,8 @@ func initDir() {
 } // initDir
 
 
-func write(buf []byte, path string) {
+// deprecate
+func write(buf []byte, b string, k string) {
 
 	var out bytes.Buffer
 
@@ -81,40 +78,24 @@ func write(buf []byte, path string) {
 	if err != nil {
 		log.Println(err)
 	} else {
-
-		err := os.WriteFile(path, out.Bytes(), 0660)
-
-		if err != nil {
-			log.Println(err)
-		}				
-	
+		BlobPut(b, k, buf)
 	}
 
 } // write
 
 
-func read(data interface{}, path string) {
+func read(data interface{}, b string, k string) {
 
-	if len(path) == 0 {
+	if len(k) == 0 {
 		return
 	}
 
-	if fileExists(path) {
+	blob := BlobGet(b, k)
 
-		buf, err := os.ReadFile(path)
+	err := json.Unmarshal(blob, &data)
 
-		if err != nil {
-			log.Println(err)
-		} else {
-			
-			err := json.Unmarshal(buf, &data)
-
-			if err != nil {
-				log.Println(err)
-			}
-
-		}
-
+	if err != nil {
+		log.Println(err)
 	}
 
 } // read

@@ -11,12 +11,14 @@ import (
 
 var (
 	
+	schedule			*stats.NbaSchedule
+
 	pullNbaCmd = &cobra.Command{
 		Use: "nba",
 		Short: "nba statistics",
 		Long: "nba statistics from the official NBA APIs",
 		Run: func(cmd *cobra.Command, args []string) {
-			pullResume()
+			pullBoxscores()
 		},
 	}
 
@@ -38,99 +40,71 @@ func ScheduleEndpoint() string {
 } // ScheduleEndpoint
 
 
-func getSchedule() *stats.NbaSchedule {
+func loadSchedule(y string) {
 
-	s := stats.NbaSchedule{}
+	bucket := BucketRaw(y)
 
-	fn := fmt.Sprintf("%s/schedule.json", fDir)
-
-	if !fileExists(fn) {
+	blob := BlobGet(bucket, SCHEDULE_BLOB)	
+	
+	if len(blob) == 0 {
 
 		buf := stats.NbaGetScheduleJson()
 
-		write(buf, fn)
-
-	} else {
-
-		read(&s, fn)
+		BlobPut(bucket, SCHEDULE_BLOB, buf)
 
 	}
+	
+	read(&schedule, bucket, SCHEDULE_BLOB)
 
-	schedule := stats.NbaSchedule{}
-
-	read(&schedule, fn)
-
-	return &schedule
-
-} // getSchedule
+} // loadSchedule
 
 
-func pullFrom(d string) {
-
-	schedule := getSchedule()
+func pullAll() {
 
 	for _, day := range schedule.LeagueSchedule.GameDates {
 
 		if !stats.IsFutureGame(day.GameDate) {
 
-			gd := stats.GameDateToString(day.GameDate)
-
-			if gd > d {
-
-				for _, game := range day.Games {
+			for _, game := range day.Games {
+				
+				if game.WeekNumber > 0 {
 					
-					if game.WeekNumber > 0 {
-						
+					_, ok := ScheduleMap[game.ID]
+
+					if !ok {
+
 						box := stats.NbaGetBoxscoreJson(game.ID)
-	
-						name := stats.GameDateToString(day.GameDate)
 
-						dir := fmt.Sprintf("%s/%s", fDir, name)
+						fn 	:= fmt.Sprintf("%s.json", game.ID)
+						fn2 := fmt.Sprintf("%s.playbyplay.json", game.ID)
 
-						if !fileExists(dir) {
-							createDir(dir)
-						}
-
-						fn 	:= fmt.Sprintf("%s/%s.json", dir, game.ID)
-						fn2 := fmt.Sprintf("%s/%s_playbyplay.json", dir, game.ID)
-
-						if !fileExists(fn) {
-							write(box, fn)
-						}
-
+						BlobPut(BucketRaw(cy), fn, box)
+						
 						plays := stats.NbaGetPlaysJson(game.ID)
 
-						if !fileExists(fn2) {
-							write(plays, fn2)
-						}
-						
-					}
-	
-				}
+						BlobPut(BucketRaw(cy), fn2, plays)
 
+						ScheduleMap[game.ID] = true
+
+					}
+					
+				}
+	
 			}
 
 		}
 
 	}
 
-} // pullFrom
+} // pullAll
 
 
-func pullResume() {
-
-	initDir()
+func pullBoxscores() {
 	
-	days := getGameDays()
+	loadSchedule(cy)
 
-	if len(days) == 1 || len(days) == 0 {
-		pullFrom(FROM_SEASON_BEGIN)
-	} else {
+	BlobList(BucketRaw(cy))
 
-		lastDay := getLastDay(days)
+	pullAll()
 
-		pullFrom(lastDay)
-
-	}
-
-} // pullResume
+} // pullBoxscores

@@ -32,9 +32,6 @@ var (
 
 
 func init() {
-
-	fSched = getSchedule()
-
 } // init
 
 
@@ -175,7 +172,7 @@ func getGameCountByDay(d string) int {
 
 func getGameDayDetail() {
 
-	fmt.Println("\n\nDetailed Downloads by Day:\n")
+	fmt.Println("\n\nDetailed Downloads by Day:")
 
 	days := getGameDays()
 

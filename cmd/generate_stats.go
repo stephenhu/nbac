@@ -79,7 +79,7 @@ func generatePlayerStats() {
 	if err != nil {
 		log.Println(err)
 	} else {
-		write(j, "players.json")
+		BlobPut(BucketAnalytics(cy), "players.json", j)
 	}
 
 } // generatePlayerStats
