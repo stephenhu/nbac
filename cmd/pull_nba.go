@@ -67,28 +67,37 @@ func pullAll() {
 
 			for _, game := range day.Games {
 				
-				if game.WeekNumber > 0 {
+				//if game.WeekNumber > 0 {
 					
-					_, ok := ScheduleMap[game.ID]
+					_, ok := ScheduleIndex[game.ID]
 
 					if !ok {
 
 						box := stats.NbaGetBoxscoreJson(game.ID)
 
 						fn 	:= fmt.Sprintf("%s.json", game.ID)
-						fn2 := fmt.Sprintf("%s.playbyplay.json", game.ID)
-
+						
 						BlobPut(BucketRaw(cy), fn, box)
 						
+						ScheduleIndex[game.ID] = true
+
+					}
+
+					_, ok = PlaysIndex[game.ID] 
+
+					if !ok {
+
+						fn := fmt.Sprintf("%s.playbyplay.json", game.ID)
+
 						plays := stats.NbaGetPlaysJson(game.ID)
 
-						BlobPut(BucketRaw(cy), fn2, plays)
+						BlobPut(BucketRaw(cy), fn, plays)
 
-						ScheduleMap[game.ID] = true
+						PlaysIndex[game.ID] = true
 
 					}
 					
-				}
+				//}
 	
 			}
 
@@ -103,7 +112,7 @@ func pullBoxscores() {
 	
 	loadSchedule(cy)
 
-	BlobList(BucketRaw(cy))
+	LoadBlobIndexes()
 
 	pullAll()
 

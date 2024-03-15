@@ -560,8 +560,8 @@ func teamAggregator(game *stats.NbaGame, isHome bool) {
 func flushParquet(schema *arrow.Schema, b *array.RecordBuilder,
 	name string) {
 
-	pf := fmt.Sprintf("%s/%s/%s.%s%s", fDir, WAREHOUSE_DIR, name,
-	  getNowStamp(), PARQUET_EXT)
+	pf := fmt.Sprintf("%s.%s%s", getNowStamp(), name,
+	  PARQUET_EXT)
 
 	rec := b.NewRecord()
 	defer rec.Release()
@@ -580,17 +580,21 @@ func flushParquet(schema *arrow.Schema, b *array.RecordBuilder,
 
 		if err != nil {
 			log.Println(err)
+		} else {
+			BlobPutFile(BucketAnalytics(cy), pf)
 		}
 
 	}
+
+
 
 } // flushParquet
 
 
 func saveStandings() {
 
-	fn := fmt.Sprintf("%s/%s/%s.%s%s", fDir, WAREHOUSE_DIR,
-		STANDINGS_PREFIX, getNowStamp(), EXT_JSON)
+	fn := fmt.Sprintf("%s.%s%s", 
+		getNowStamp(), STANDINGS_PREFIX, EXT_JSON)
 
 	j, err := json.Marshal(standings)
 
@@ -766,9 +770,11 @@ func initScheduleGameTypes() {
 
 func generateData() {
 
-	initWarehouseDir()
+	//initWarehouseDir()
 
 	loadSchedule(cy)
+
+	LoadBlobIndexes()
 
 	scores = parseBoxscores()
 

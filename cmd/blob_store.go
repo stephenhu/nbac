@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/spf13/viper"
 	"github.com/minio/minio-go/v7"
@@ -32,9 +33,12 @@ const (
 )
 
 
-var ScheduleMap map[string] bool
+var ScheduleIndex map[string] bool
+var PlaysIndex map[string] bool
 
 var blobs *minio.Client
+var rawBlobs <-chan minio.ObjectInfo
+var analyticsBlobs <-chan minio.ObjectInfo
 
 
 func readConfig() {
@@ -103,7 +107,6 @@ func initBlobStore() {
 } // initBlobStore
 
 
-
 func BucketRaw(y string) string {
 	return fmt.Sprintf(BUCKET_RAW, y)
 } // BucketRaw
@@ -133,18 +136,40 @@ func BlobExists(b string, k string) bool {
 } // BlobExists
 
 
-func BlobList(b string) {
+func BlobName(b string) string {
+	return strings.TrimSuffix(b, EXT_JSON)
+} // BlobName
+
+
+func LoadBlobIndexes() {
+
+	ScheduleIndex 	= make(map[string] bool)
+	PlaysIndex 			= make(map[string] bool)
+
+	rawBlobs 				= BlobList(BucketRaw(cy))
+	analyticsBlobs 	= BlobList(BucketAnalytics(cy))
+
+	for b := range rawBlobs {
+
+		name := BlobName(b.Key)
+
+		if strings.Contains(name, PBP_SUFFIX) {
+			PlaysIndex[name] = true
+		} else if name != SCHEDULE_BLOB {
+			ScheduleIndex[name] = true
+		}
+
+	}
+
+} // LoadBlobIndexes
+
+
+func BlobList(b string) <-chan minio.ObjectInfo {
 
 	ctx := context.Background()
-
-	ScheduleMap = make(map[string] bool)
-
-	blobs := blobs.ListObjects(ctx, b,
+	
+	return blobs.ListObjects(ctx, b,
 		minio.ListObjectsOptions{})
-
-	for b := range blobs {
-		ScheduleMap[b.Key] = true
-	}
 
 } // BlobList
 
@@ -163,6 +188,20 @@ func BlobPut(b string, k string, r []byte) {
 	}
 
 } // BlobPut
+
+
+func BlobPutFile(b string, k string) {
+
+	ctx := context.Background()
+
+	_, err := blobs.FPutObject(ctx, b, k, k, minio.PutObjectOptions{
+		ContentType: JSON_CONTENT_TYPE})
+
+	if err != nil {
+		log.Println(err)
+	}
+
+} // BlobPutFile
 
 
 func BlobGet(b string, f string) []byte {

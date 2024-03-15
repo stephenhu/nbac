@@ -4,10 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
-	//"path/filepath"
-	//"sort"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,7 +13,7 @@ import (
 
 var (
 
-	fSched		*stats.NbaSchedule
+	//fSched		*stats.NbaSchedule
 
 	statusCmd = &cobra.Command{
 		Use: "status",
@@ -39,7 +35,7 @@ func getTotalGames() int {
 
 	total := 0
 
-	for _, day := range fSched.LeagueSchedule.GameDates {
+	for _, day := range schedule.LeagueSchedule.GameDates {
 		total += len(day.Games)
 	}
 
@@ -49,52 +45,7 @@ func getTotalGames() int {
 
 
 func getDownloaded() (int, int) {
-
-	total 		:= 0
-	ptotal 		:= 0
-
-	dirs, err := os.ReadDir(fDir)
-
-	if err != nil {
-		log.Println(err)
-	} else {
-	
-		for _, day := range dirs {
-
-			if day.IsDir() {
-
-				fn := fmt.Sprintf("%s/%s", fDir, day.Name())
-				
-				games, err := os.ReadDir(fn)
-
-				if err != nil {
-					log.Println(err)
-				} else {
-
-					for _, g := range games {
-
-						if path.Ext(path.Join(fn, g.Name())) == EXT_JSON {
-
-							if strings.Contains(g.Name(), PBP_SUFFIX) {
-								ptotal += 1
-							} else {
-								total += 1
-							}
-	
-						}
-
-					}
-
-				}
-	
-			}
-
-		}
-
-	}
-
-	return total, ptotal
-
+	return len(ScheduleIndex), len(PlaysIndex)
 } // getDownloaded
 
 
@@ -149,7 +100,7 @@ func getGameDays() []os.DirEntry {
 
 func getGameCountByDay(d string) int {
 
-	for _, day := range fSched.LeagueSchedule.GameDates {
+	for _, day := range schedule.LeagueSchedule.GameDates {
 
 		t, err := time.Parse(stats.NBA_DATETIME_FORMAT, day.GameDate)
 
@@ -174,27 +125,31 @@ func getGameDayDetail() {
 
 	fmt.Println("\n\nDetailed Downloads by Day:")
 
-	days := getGameDays()
+	for _, day := range schedule.LeagueSchedule.GameDates {
 
-	for _, day := range days {
+		count := 0 
 
-		if day.IsDir() {
+		for _, g := range day.Games {
 
-			fn := fmt.Sprintf("%s/%s", fDir, day.Name())
+			_, ok := ScheduleIndex[g.ID]
 
-			files, err := os.ReadDir(fn)
-		
-			if err != nil {
-				log.Println(err)
-			} else {
-	
-				fmt.Printf("%s:\t (%d/%d)\n", day.Name(), len(files),
-				  getGameCountByDay(day.Name()))
-		
+			if ok {
+				count += 1
 			}
-	
+
 		}
-	
+
+		t, err := time.Parse(stats.NBA_DATETIME_FORMAT, day.GameDate)
+
+		if err != nil {
+			log.Println(err)
+		} else {
+
+			fmt.Printf("%s:\t (%d/%d)\n", t.Format(stats.DATE_FORMAT), count,
+				len(day.Games))
+
+		}
+
 	}
 
 } // getGameDayDetail
@@ -219,12 +174,16 @@ func getEstTimeNow() time.Time {
 
 func getStatus() {
 
+	loadSchedule(cy)
+
+	LoadBlobIndexes()
+
 	today := getEstTimeNow()
 
 	dgames, dplays := getDownloaded()
 
 	//fmt.Println(today.Format(time.DateTime))
-	fmt.Printf("\nSeason %s\n", stats.GetCurrentSeason())
+	fmt.Printf("\nSeason %s\n", cy)
 	fmt.Println("-----------")
 	fmt.Printf("Total Games:\t\t %d\n", getTotalGames())
 	fmt.Printf("Downloaded Games:\t %d\n", dgames)

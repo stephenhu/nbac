@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -101,6 +102,37 @@ func getBoxscore(f string) *stats.NbaBoxscore {
 
 
 func parseBoxscores() []stats.NbaBoxscore {
+
+	scores := []stats.NbaBoxscore{}
+
+	raw := BucketRaw(cy)
+
+	for k, _ := range ScheduleIndex {
+		
+		buf := BlobGet(raw, fmt.Sprintf("%s%s", k, EXT_JSON))
+
+		box := stats.NbaBoxscore{}
+
+		if len(box.Game.ID) == 0 {
+			continue
+		}
+		
+		err := json.Unmarshal(buf, &box)
+
+		if err != nil {
+			log.Println(err)
+		} else {
+			scores = append(scores, box)
+		}
+
+	}
+
+	return scores
+
+} // parseBoxscores
+
+
+func parseBoxscores2() []stats.NbaBoxscore {
 
 	scores := []stats.NbaBoxscore{}
 
