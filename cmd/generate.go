@@ -36,7 +36,6 @@ var (
 
 func init() {
 
-	generateCmd.AddCommand(generateStatsCmd)
 	generateCmd.AddCommand(generateDataCmd)
 
 } // init
@@ -116,7 +115,7 @@ func parseBoxscores() []stats.NbaBoxscore {
 		if len(box.Game.ID) == 0 {
 			continue
 		}
-		
+
 		err := json.Unmarshal(buf, &box)
 
 		if err != nil {
