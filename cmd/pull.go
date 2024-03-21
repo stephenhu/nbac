@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/madsportslab/nbalake"
 	"github.com/spf13/cobra"
 )
 
@@ -78,7 +79,7 @@ func write(buf []byte, b string, k string) {
 	if err != nil {
 		log.Println(err)
 	} else {
-		BlobPut(b, k, buf)
+		nbalake.Put(b, k, buf)
 	}
 
 } // write
@@ -90,7 +91,7 @@ func read(data interface{}, b string, k string) {
 		return
 	}
 
-	blob := BlobGet(b, k)
+	blob := nbalake.Get(b, k)
 
 	err := json.Unmarshal(blob, &data)
 

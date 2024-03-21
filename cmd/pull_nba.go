@@ -4,6 +4,7 @@ import (
 	"fmt"
 	//"log"
 
+	"github.com/madsportslab/nbalake"
 	"github.com/spf13/cobra"
 	"github.com/stephenhu/stats"
 )
@@ -42,15 +43,16 @@ func ScheduleEndpoint() string {
 
 func loadSchedule(y string) {
 
-	bucket := BucketRaw(y)
+	bucket := nbalake.BucketName(y,
+		nbalake.BUCKET_RAW)
 
-	blob := BlobGet(bucket, SCHEDULE_BLOB)	
+	blob := nbalake.Get(bucket, SCHEDULE_BLOB)	
 	
 	if len(blob) == 0 {
 
 		buf := stats.NbaGetScheduleJson()
 
-		BlobPut(bucket, SCHEDULE_BLOB, buf)
+		nbalake.Put(bucket, SCHEDULE_BLOB, buf)
 
 	}
 	
@@ -77,7 +79,8 @@ func pullAll() {
 
 						fn 	:= fmt.Sprintf("%s.json", game.ID)
 						
-						BlobPut(BucketRaw(cy), fn, box)
+						nbalake.Put(nbalake.BucketName(cy,
+							nbalake.BUCKET_RAW), fn, box)
 						
 						ScheduleIndex[game.ID] = true
 
@@ -91,7 +94,7 @@ func pullAll() {
 
 						plays := stats.NbaGetPlaysJson(game.ID)
 
-						BlobPut(BucketRaw(cy), fn, plays)
+						nbalake.Put(nbalake.BucketName(cy, nbalake.BUCKET_RAW), fn, plays)
 
 						PlaysIndex[game.ID] = true
 

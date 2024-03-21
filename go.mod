@@ -1,19 +1,15 @@
 module github.com/stephenhu/nbac
 
-go 1.21
-
-toolchain go1.21.5
+go 1.21.5
 
 require (
 	github.com/apache/arrow/go/v15 v15.0.0-20240113220206-e6323646558e
 	github.com/gomodule/redigo v1.8.9
-	github.com/minio/minio-go/v7 v7.0.68
+	github.com/madsportslab/nbalake v0.0.0-20240317134901-5137dade17e2
+	github.com/minio/minio-go/v7 v7.0.69
 	github.com/spf13/cobra v1.5.0
-	github.com/spf13/viper v1.18.2
 	github.com/stephenhu/stats v0.5.0
 )
-
-replace github.com/stephenhu/stats => /Users/hu/work/src/github.com/stephenhu/stats
 
 require (
 	github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c // indirect
@@ -49,6 +45,7 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/viper v1.18.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	go.uber.org/atomic v1.9.0 // indirect

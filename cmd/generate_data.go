@@ -10,6 +10,7 @@ import (
   "github.com/apache/arrow/go/v15/arrow/array"
 	"github.com/apache/arrow/go/v15/arrow/memory"
 	"github.com/apache/arrow/go/v15/parquet/pqarrow"
+	"github.com/madsportslab/nbalake"
 	"github.com/spf13/cobra"
 	"github.com/stephenhu/stats"
 
@@ -581,7 +582,8 @@ func flushParquet(schema *arrow.Schema, b *array.RecordBuilder,
 		if err != nil {
 			log.Println(err)
 		} else {
-			BlobPutFile(BucketAnalytics(cy), pf)
+			nbalake.PutFile(nbalake.BucketName(cy,
+				nbalake.BUCKET_ANALYTICS), pf)
 		}
 
 	}
@@ -601,7 +603,8 @@ func saveStandings() {
 	if err != nil {
 		log.Println(err)		
 	} else {
-		BlobPut(BucketAnalytics(cy), fn, j)
+		nbalake.Put(nbalake.BucketName(cy,
+			nbalake.BUCKET_ANALYTICS), fn, j)
 	}
 
 } // saveStandings
@@ -741,7 +744,8 @@ func generatePlayerInfo() {
 	if err != nil {
 		log.Println(err)
 	} else {
-		BlobPut(BucketAnalytics(cy), "test.json", j)
+		nbalake.Put(nbalake.BucketName(cy,
+			nbalake.BUCKET_ANALYTICS), "test.json", j)
 	}
 
 } // generatePlayerInfo
@@ -769,8 +773,6 @@ func initScheduleGameTypes() {
 
 
 func generateData() {
-
-	//initWarehouseDir()
 
 	loadSchedule(cy)
 

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/madsportslab/nbalake"
 	"github.com/spf13/cobra"
 	"github.com/stephenhu/stats"
 )
@@ -104,11 +105,11 @@ func parseBoxscores() []stats.NbaBoxscore {
 
 	scores := []stats.NbaBoxscore{}
 
-	raw := BucketRaw(cy)
+	raw := nbalake.BucketName(cy, nbalake.BUCKET_RAW)
 
 	for k, _ := range ScheduleIndex {
 		
-		buf := BlobGet(raw, fmt.Sprintf("%s%s", k, EXT_JSON))
+		buf := nbalake.Get(raw, fmt.Sprintf("%s%s", k, EXT_JSON))
 
 		box := stats.NbaBoxscore{}
 

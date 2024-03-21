@@ -2,6 +2,7 @@ package cmd
 
 import (
 
+	"github.com/madsportslab/nbalake"
 	"github.com/spf13/cobra"
 	"github.com/stephenhu/stats"
 )
@@ -63,7 +64,7 @@ func init() {
 
 	cy = stats.GetCurrentSeason()
 
-	initBlobStore()
+	nbalake.ConnectionNew()
 
 } // init
 
