@@ -5,10 +5,10 @@ go 1.21.5
 require (
 	github.com/apache/arrow/go/v15 v15.0.0-20240113220206-e6323646558e
 	github.com/gomodule/redigo v1.8.9
-	github.com/madsportslab/nbalake v0.0.0-20240317134901-5137dade17e2
+	github.com/madsportslab/nbalake v0.0.0-20240323054143-dc95f464de77
 	github.com/minio/minio-go/v7 v7.0.69
 	github.com/spf13/cobra v1.5.0
-	github.com/stephenhu/stats v0.5.0
+	github.com/stephenhu/stats v0.5.1
 )
 
 require (

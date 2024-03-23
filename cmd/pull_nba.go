@@ -3,8 +3,10 @@ package cmd
 import (
 	"fmt"
 	//"log"
+	"strings"
 
 	"github.com/madsportslab/nbalake"
+	"github.com/minio/minio-go/v7"
 	"github.com/spf13/cobra"
 	"github.com/stephenhu/stats"
 )
@@ -26,6 +28,12 @@ var (
 )
 
 
+var ScheduleIndex map[string] bool
+var PlaysIndex map[string] bool
+
+var rawBlobs <-chan minio.ObjectInfo
+
+
 func init() {
 } // init
 
@@ -39,6 +47,35 @@ func ScheduleEndpoint() string {
 	)
 
 } // ScheduleEndpoint
+
+
+
+func LoadBlobIndexes() {
+
+	ScheduleIndex 	= make(map[string] bool)
+	PlaysIndex 			= make(map[string] bool)
+
+	rb := nbalake.BucketName(cy, nbalake.BUCKET_RAW)
+
+	ab := nbalake.BucketName(cy, nbalake.BUCKET_ANALYTICS)
+
+	nbalake.InitBuckets([]string{rb, ab})
+
+	rawBlobs 				= nbalake.List(rb)
+
+	for b := range rawBlobs {
+
+		name := fmt.Sprintf(b.Key, EXT_JSON)
+
+		if strings.Contains(name, PBP_SUFFIX) {
+			PlaysIndex[name] = true
+		} else if name != SCHEDULE_BLOB {
+			ScheduleIndex[name] = true
+		}
+
+	}
+
+} // LoadBlobIndexes
 
 
 func loadSchedule(y string) {
