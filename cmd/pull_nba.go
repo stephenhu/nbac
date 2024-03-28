@@ -49,7 +49,6 @@ func ScheduleEndpoint() string {
 } // ScheduleEndpoint
 
 
-
 func LoadBlobIndexes() {
 
 	ScheduleIndex 	= make(map[string] bool)
@@ -61,15 +60,19 @@ func LoadBlobIndexes() {
 
 	nbalake.InitBuckets([]string{rb, ab})
 
-	rawBlobs 				= nbalake.List(rb)
+	rawBlobs = nbalake.List(rb)
 
 	for b := range rawBlobs {
 
-		name := fmt.Sprintf(b.Key, EXT_JSON)
+		name := strings.TrimSuffix(b.Key, EXT_JSON)
 
-		if strings.Contains(name, PBP_SUFFIX) {
-			PlaysIndex[name] = true
-		} else if name != SCHEDULE_BLOB {
+		if strings.Contains(b.Key, PBP_SUFFIX) {
+
+			id := strings.TrimSuffix(name, EXT_PBP)
+
+			PlaysIndex[id] = true
+
+		} else if b.Key != SCHEDULE_BLOB {
 			ScheduleIndex[name] = true
 		}
 

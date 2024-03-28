@@ -25,6 +25,7 @@ const (
 
 const (
 	EXT_JSON							= ".json"
+	EXT_PBP               = ".playbyplay"
 	JSON_FILE             = "json"
 	SCHEDULE_BLOB        	= "schedule.json"
 )

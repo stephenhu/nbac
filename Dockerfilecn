@@ -7,6 +7,14 @@ RUN go env -w GO111MODULE=on && \
 
 FROM ubuntu:latest
 WORKDIR /usr/local/nbac
-RUN apt-get update -y && apt-get install -y ca-certificates
+ENV TZ=Asia/Shanghai
+RUN apt-get update -y && apt-get install -y \
+  ca-certificates  \
+  cron
 COPY --from=builder /sources/nbac .
-CMD ["/usr/local/nbac/nbac", "pull", "nba"]
+COPY nbac-cron /etc/cron.d/
+COPY nbac.sh .
+RUN chmod +x /usr/local/nbac/nbac.sh
+RUN crontab /etc/cron.d/nbac-cron
+RUN touch /var/log/cron.log
+CMD cron && tail -f /var/log/cron.log

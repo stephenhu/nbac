@@ -55,6 +55,8 @@ github.com/madsportslab/nbalake v0.0.0-20240321134126-6369864cb84c h1:uIp/XkYapr
 github.com/madsportslab/nbalake v0.0.0-20240321134126-6369864cb84c/go.mod h1:MAtd6FXIyp3XnuAYQziiIu6PWjBWXRXpbmPeSZlvLPo=
 github.com/madsportslab/nbalake v0.0.0-20240323054143-dc95f464de77 h1:HZhlq7KAWpDzXCc99W6+S3/Gdw9QS+NF4It96b0Ckao=
 github.com/madsportslab/nbalake v0.0.0-20240323054143-dc95f464de77/go.mod h1:MAtd6FXIyp3XnuAYQziiIu6PWjBWXRXpbmPeSZlvLPo=
+github.com/madsportslab/nbalake v0.0.0-20240328104836-969a844eba5a h1:oTdZAjLPiuEB1ueEbvVR5BakeW1Qa2rc+iytXKT4SiQ=
+github.com/madsportslab/nbalake v0.0.0-20240328104836-969a844eba5a/go.mod h1:MAtd6FXIyp3XnuAYQziiIu6PWjBWXRXpbmPeSZlvLPo=
 github.com/magiconair/properties v1.8.7 h1:IeQXZAiQcpL9mgcAe1Nu6cX9LLw6ExEHKjN0VQdvPDY=
 github.com/magiconair/properties v1.8.7/go.mod h1:Dhd985XPs7jluiymwWYZ0G4Z61jb3vdS329zhj2hYo0=
 github.com/minio/asm2plan9s v0.0.0-20200509001527-cdd76441f9d8 h1:AMFGa4R4MiIpspGNG7Z948v4n35fFGB3RR3G/ry4FWs=
